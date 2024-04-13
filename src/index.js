@@ -1,37 +1,36 @@
 // Crear la escena
 import * as THREE from "../node_modules/three/build/three.module.js";
-import {
-  player,
-  updatePlayer,
-  onKeyDown,
-  onKeyUp,
-  onMouseDown,
-  onMouseMove,
-  onMouseUp,
-} from "./player.js";
+import { player } from "./player.js";
 
-import { camera, updateCamera } from "./camera.js";
-import { mazeObject } from "./maze.js";
+import { camera } from "./camera.js";
+import { maze } from "./maze.js";
 import { ground } from "./ground.js";
+import { mouseEvents, keyEvents, playerActions, cameraRotation, playerRotation } from "./controls.js";
 
-function initRenderer() {
-  const renderer = new THREE.WebGLRenderer();
-  renderer.setSize(window.innerWidth, window.innerHeight);
-  return renderer;
+const renderer = new THREE.WebGLRenderer();
+renderer.setSize(window.innerWidth, window.innerHeight);
+
+const scene = new THREE.Scene();
+scene.add(maze);
+scene.add(player);
+scene.add(ground);
+
+// Actualizar la posición de la cámara para seguir al jugador
+function updateCamera() {
+  camera.position.x = player.position.x - 10 * Math.sin(cameraRotation);
+  camera.position.z = player.position.z - 10 * Math.cos(cameraRotation);
+  camera.lookAt(player.position);
 }
 
-function initScene() {
-  const scene = new THREE.Scene();
-  scene.add(mazeObject);
-  scene.add(player);
-  scene.add(ground);
+function updatePlayer() {
+  // Mover al jugador
+  playerActions.movePlayer(player);
 
-  return scene;
+  // Actualizar la rotación del jugador para que coincida con la rotación de la cámara
+  //const deltaRotation = -camera.rotation.y - player.rotation.y;
+  //player.rotation.y += deltaRotation * 0.1;
+  player.rotation.y = playerRotation;
 }
-
-// Crear el renderizador
-const renderer = initRenderer();
-const scene = initScene();
 
 // Animar la escena
 function animate() {
@@ -50,15 +49,15 @@ function isPlayerOnGround(x, z) {
 }
 
 // Event listeners para el control de ratón
-window.addEventListener("mousedown", onMouseDown, false);
-window.addEventListener("mouseup", onMouseUp, false);
-window.addEventListener("mousemove", onMouseMove, false);
+window.addEventListener("mousedown", mouseEvents.onMouseDown, true);
+window.addEventListener("mouseup", mouseEvents.onMouseUp, false);
+window.addEventListener("mousemove", mouseEvents.onMouseMove, true);
 
 // Control de teclado para mover al jugador
-window.addEventListener("keydown", onKeyDown, false);
-window.addEventListener("keyup", onKeyUp, false);
+window.addEventListener("keydown", keyEvents.onKeyDown, false);
+window.addEventListener("keyup", keyEvents.onKeyUp, false);
+
+document.body.appendChild(renderer.domElement);
 
 // Llamar a la función de animación
 animate();
-
-document.body.appendChild(renderer.domElement);

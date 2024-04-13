@@ -25,7 +25,7 @@ const mazeData = [
 
 // Tamaño de cada celda del laberinto
 const cellSize = 2;
-const mazeObject = initMaze();
+const maze = initMaze();
 
 function initMaze() {
   const mazeGroup = new THREE.Group();
@@ -53,4 +53,4 @@ function initMaze() {
   return mazeGroup;
 }
 
-export { mazeObject };
+export { maze };
