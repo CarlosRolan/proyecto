@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Camera Following Player with Mouse Rotation</title>
+    <title>Camera Following Player with Mouse Rotation and Gizmo</title>
     <style>
         body { margin: 0; }
         canvas { display: block; }
@@ -17,6 +17,7 @@
         
         // Crear la cámara
         var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.set(0, 5, -10);
 
         // Crear el renderizador
         var renderer = new THREE.WebGLRenderer();
@@ -36,6 +37,11 @@
         ground.rotation.x = Math.PI / -2;
         scene.add(ground);
 
+        // Crear un gizmo para mostrar los ejes X, Y y Z en función de la cámara
+        var axesHelper = new THREE.AxesHelper(5);
+        camera.add(axesHelper);
+        scene.add(camera);
+
         // Control de teclado para mover al jugador
         var moveSpeed = 0.1;
         var keys = {
@@ -48,6 +54,7 @@
         // Control de ratón para rotar la cámara alrededor del jugador
         var mouseDown = false;
         var lastMouseX = null;
+        var cameraRotation = 0;
 
         function onMouseDown(event) {
             mouseDown = true;
@@ -63,7 +70,7 @@
             if (!mouseDown) return;
 
             var deltaX = event.clientX - lastMouseX;
-            player.rotation.y -= deltaX * 0.01;
+            cameraRotation -= deltaX * 0.01;
             lastMouseX = event.clientX;
         }
 
@@ -73,6 +80,9 @@
         window.addEventListener('mousemove', onMouseMove, false);
 
         // Control de teclado para mover al jugador
+        window.addEventListener('keydown', onKeyDown, false);
+        window.addEventListener('keyup', onKeyUp, false);
+
         function onKeyDown(event) {
             switch (event.key.toUpperCase()) {
                 case 'W':
@@ -107,25 +117,6 @@
             }
         }
 
-        function movePlayer() {
-            var newPos = player.position.clone();
-            if (keys.W) newPos.z -= moveSpeed;
-            if (keys.A) newPos.x -= moveSpeed;
-            if (keys.S) newPos.z += moveSpeed;
-            if (keys.D) newPos.x += moveSpeed;
-            if (isPlayerOnGround(newPos)) {
-                player.position.copy(newPos);
-            }
-        }
-
-        function isPlayerOnGround(position) {
-            return position.x >= -9.5 && position.x <= 9.5 && position.z >= -9.5 && position.z <= 9.5;
-        }
-
-        // Event listeners para el control de teclado
-        window.addEventListener('keydown', onKeyDown, false);
-        window.addEventListener('keyup', onKeyUp, false);
-
         // Animar la escena
         function animate() {
             requestAnimationFrame(animate);
@@ -134,9 +125,8 @@
             movePlayer();
 
             // Actualizar la posición de la cámara para seguir al jugador
-            var relativeCameraOffset = new THREE.Vector3(0, 5, 10);
-            var cameraOffset = relativeCameraOffset.applyMatrix4(player.matrixWorld);
-            camera.position.copy(cameraOffset);
+            camera.position.x = player.position.x - 10 * Math.sin(cameraRotation);
+            camera.position.z = player.position.z - 10 * Math.cos(cameraRotation);
             camera.lookAt(player.position);
 
             // Renderizar la escena
@@ -145,6 +135,25 @@
 
         // Llamar a la función de animación
         animate();
+
+        function movePlayer() {
+            if (keys.W) {
+                player.position.x += moveSpeed * Math.sin(player.rotation.y);
+                player.position.z += moveSpeed * Math.cos(player.rotation.y);
+            }
+            if (keys.A) {
+                player.position.x += moveSpeed * Math.cos(player.rotation.y);
+                player.position.z -= moveSpeed * Math.sin(player.rotation.y);
+            }
+            if (keys.S) {
+                player.position.x -= moveSpeed * Math.sin(player.rotation.y);
+                player.position.z -= moveSpeed * Math.cos(player.rotation.y);
+            }
+            if (keys.D) {
+                player.position.x -= moveSpeed * Math.cos(player.rotation.y);
+                player.position.z += moveSpeed * Math.sin(player.rotation.y);
+            }
+        }
     </script>
 </body>
 </html>
