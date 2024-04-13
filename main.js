@@ -6,7 +6,6 @@ var renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
-
 // Crear un cubo para representar al jugador
 var geometry = new THREE.BoxGeometry();
 var material = [
