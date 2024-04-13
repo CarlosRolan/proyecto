@@ -36,6 +36,7 @@ const renderer = initRenderer();
 document.body.appendChild(renderer.domElement);
 
 const player = initPlayer();
+player.position.set(0, 0, 0);
 scene.add(player);
 
 // Crear la cámara
@@ -72,17 +73,35 @@ function onMouseDown(event) {
   lastMouseX = event.clientX;
 }
 
-function onMouseUp() {
+function onMouseUp(event) {
   mouseDown = false;
-  lastMouseX = null;
+  if (!mouseDown) {
+    cameraRotation -= deltaX * 0.001;
+
+    playerRotation = cameraRotation;
+  
+  } else {
+    cameraRotation -= deltaX * 0.001;
+    lastMouseX = event.clientX;
+  }
+
+    lastMouseX = event.clientX;
 }
 
 function onMouseMove(event) {
-  if (!mouseDown) return;
-
   var deltaX = event.clientX - lastMouseX;
-  cameraRotation -= deltaX * 0.001;
-  lastMouseX = event.clientX;
+
+  if (!mouseDown) {
+    cameraRotation -= deltaX * 0.001;
+
+    playerRotation = cameraRotation;
+  
+  } else {
+    cameraRotation -= deltaX * 0.001;
+    lastMouseX = event.clientX;
+  }
+
+    lastMouseX = event.clientX;
 }
 
 // Event listeners para el control de ratón
@@ -135,6 +154,7 @@ function updatePlayer() {
   // Actualizar la rotación del jugador para que coincida con la rotación de la cámara
   //var deltaRotation = -camera.rotation.y - player.rotation.y;
   //player.rotation.y += deltaRotation * 0.1;
+  player.rotation.y = playerRotation;
 }
 
 // Actualizar la posición de la cámara para seguir al jugador
@@ -165,20 +185,20 @@ function movePlayer() {
   var nextZ = player.position.z;
 
   if (keys.W) {
-    nextX += moveSpeed * Math.sin(playerRotation);
-    nextZ += moveSpeed * Math.cos(playerRotation);
+    nextX += moveSpeed * Math.sin(player.rotation.y);
+    nextZ += moveSpeed * Math.cos(player.rotation.y);
   }
   if (keys.A) {
-    nextX += moveSpeed * Math.cos(playerRotation);
-    nextZ -= moveSpeed * Math.sin(playerRotation);
+    nextX += moveSpeed * Math.cos(player.rotation.y);
+    nextZ -= moveSpeed * Math.sin(player.rotation.y);
   }
   if (keys.S) {
-    nextX -= moveSpeed * Math.sin(playerRotation);
-    nextZ -= moveSpeed * Math.cos(playerRotation);
+    nextX -= moveSpeed * Math.sin(player.rotation.y);
+    nextZ -= moveSpeed * Math.cos(player.rotation.y);
   }
   if (keys.D) {
-    nextX -= moveSpeed * Math.cos(playerRotation);
-    nextZ += moveSpeed * Math.sin(playerRotation);
+    nextX -= moveSpeed * Math.cos(player.rotation.y);
+    nextZ += moveSpeed * Math.sin(player.rotation.y);
   }
 
   // Verificamos si el jugador está dentro del suelo
