@@ -20,10 +20,9 @@ function initPlayer() {
   ];
   return new THREE.Mesh(geometry, material);
 }
-
 function initGround() {
   // Crear un suelo
-  var groundGeometry = new THREE.PlaneGeometry(20, 20, 10, 10);
+  var groundGeometry = new THREE.PlaneGeometry(200, 200, 10, 10);
   var groundMaterial = new THREE.MeshBasicMaterial({
     color: 0xaaaaaa,
     side: THREE.DoubleSide,
@@ -36,7 +35,7 @@ const renderer = initRenderer();
 document.body.appendChild(renderer.domElement);
 
 const player = initPlayer();
-player.position.set(0, 0, 0);
+player.position.set(-95, 0, -95);
 scene.add(player);
 
 // Crear la cámara
@@ -75,33 +74,17 @@ function onMouseDown(event) {
 
 function onMouseUp(event) {
   mouseDown = false;
-  if (!mouseDown) {
-    cameraRotation -= deltaX * 0.001;
+  lastMouseX = null;
 
-    playerRotation = cameraRotation;
-  
-  } else {
-    cameraRotation -= deltaX * 0.001;
-    lastMouseX = event.clientX;
-  }
-
-    lastMouseX = event.clientX;
+  playerRotation = cameraRotation;
 }
 
 function onMouseMove(event) {
+  if (!mouseDown) return;
+
   var deltaX = event.clientX - lastMouseX;
-
-  if (!mouseDown) {
-    cameraRotation -= deltaX * 0.001;
-
-    playerRotation = cameraRotation;
-  
-  } else {
-    cameraRotation -= deltaX * 0.001;
-    lastMouseX = event.clientX;
-  }
-
-    lastMouseX = event.clientX;
+  cameraRotation -= deltaX * 0.001;
+  lastMouseX = event.clientX;
 }
 
 // Event listeners para el control de ratón
@@ -201,12 +184,15 @@ function movePlayer() {
     nextZ += moveSpeed * Math.sin(player.rotation.y);
   }
 
-  // Verificamos si el jugador está dentro del suelo
+  player.position.x = nextX;
+  player.position.z = nextZ;
+
+  /* Verificamos si el jugador está dentro del suelo
   if (isPlayerOnGround(nextX, nextZ)) {
     // Movemos al jugador
     player.position.x = nextX;
     player.position.z = nextZ;
-  }
+  }*/
 }
 
 function isPlayerOnGround(x, z) {
