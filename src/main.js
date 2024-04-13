@@ -1,5 +1,8 @@
 // Crear la escena
+
 const scene = new THREE.Scene();
+
+console.log(scene);
 
 function initRenderer() {
   const renderer = new THREE.WebGLRenderer();
@@ -22,20 +25,80 @@ function initPlayer() {
 }
 function initGround() {
   // Crear un suelo
-  var groundGeometry = new THREE.PlaneGeometry(200, 200, 10, 10);
-  var groundMaterial = new THREE.MeshBasicMaterial({
+  const groundGeometry = new THREE.PlaneGeometry(200, 200, 10, 10);
+  const groundMaterial = new THREE.MeshBasicMaterial({
     color: 0xaaaaaa,
     side: THREE.DoubleSide,
   });
   return new THREE.Mesh(groundGeometry, groundMaterial);
 }
 
+// Define la estructura del laberinto (0: pasillo, 1: pared)
+const maze = [
+  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1],
+  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1],
+  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1],
+  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1],
+  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1],
+  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1],
+  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1],
+  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1],
+  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1],
+  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1],
+  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1],
+  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1],
+  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1],
+  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1],
+  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1],
+  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1],
+  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1],
+];
+
+console.log(maze);
+
+// Tamaño de cada celda del laberinto
+const cellSize = 2;
+
+// Función para inicializar el laberinto
+function initMaze() {
+  const mazeGroup = new THREE.Group();
+
+  for (let i = 0; i < maze.length; i++) {
+    for (let j = 0; j < maze[i].length; j++) {
+      if (maze[i][j] === 1) {
+        const wallGeometry = new THREE.BoxGeometry(
+          cellSize,
+          cellSize,
+          cellSize
+        );
+        const wallMaterial = new THREE.MeshBasicMaterial({ color: 0x555555 });
+        const wall = new THREE.Mesh(wallGeometry, wallMaterial);
+        wall.position.set(
+          (j - maze.length / 2) * cellSize,
+          0,
+          (i - maze.length / 2) * cellSize
+        );
+        mazeGroup.add(wall);
+      }
+    }
+  }
+
+  return mazeGroup;
+}
+
+// Inicializa y agrega el laberinto a la escena
+const mazeObject = initMaze();
+scene.add(mazeObject);
+
+
 // Crear el renderizador
 const renderer = initRenderer();
-document.body.appendChild(renderer.domElement);
+
 
 const player = initPlayer();
-player.position.set(-95, 0, -95);
+player.position.set(-95, 0.5, -95);
 scene.add(player);
 
 // Crear la cámara
@@ -53,8 +116,8 @@ ground.rotation.x = Math.PI / -2;
 scene.add(ground);
 
 // Control de teclado para mover al jugador
-var moveSpeed = 0.1;
-var keys = {
+const moveSpeed = 0.1;
+const keys = {
   W: false,
   A: false,
   S: false,
@@ -62,10 +125,10 @@ var keys = {
 };
 
 // Control de ratón para rotar la cámara alrededor del jugador
-var mouseDown = false;
-var lastMouseX = null;
-var cameraRotation = 0;
-var playerRotation = 0;
+const mouseDown = false;
+const lastMouseX = null;
+const cameraRotation = 0;
+const playerRotation = 0;
 
 function onMouseDown(event) {
   mouseDown = true;
@@ -82,19 +145,12 @@ function onMouseUp(event) {
 function onMouseMove(event) {
   if (!mouseDown) return;
 
-  var deltaX = event.clientX - lastMouseX;
+  const deltaX = event.clientX - lastMouseX;
   cameraRotation -= deltaX * 0.001;
   lastMouseX = event.clientX;
 }
 
-// Event listeners para el control de ratón
-window.addEventListener("mousedown", onMouseDown, false);
-window.addEventListener("mouseup", onMouseUp, false);
-window.addEventListener("mousemove", onMouseMove, false);
 
-// Control de teclado para mover al jugador
-window.addEventListener("keydown", onKeyDown, false);
-window.addEventListener("keyup", onKeyUp, false);
 
 function onKeyDown(event) {
   switch (event.key.toUpperCase()) {
@@ -135,7 +191,7 @@ function updatePlayer() {
   movePlayer();
 
   // Actualizar la rotación del jugador para que coincida con la rotación de la cámara
-  //var deltaRotation = -camera.rotation.y - player.rotation.y;
+  //const deltaRotation = -camera.rotation.y - player.rotation.y;
   //player.rotation.y += deltaRotation * 0.1;
   player.rotation.y = playerRotation;
 }
@@ -159,13 +215,12 @@ function animate() {
   renderer.render(scene, camera);
 }
 
-// Llamar a la función de animación
-animate();
+
 
 function movePlayer() {
   // Calculamos las posiciones candidatas del jugador
-  var nextX = player.position.x;
-  var nextZ = player.position.z;
+  const nextX = player.position.x;
+  const nextZ = player.position.z;
 
   if (keys.W) {
     nextX += moveSpeed * Math.sin(player.rotation.y);
@@ -199,3 +254,18 @@ function isPlayerOnGround(x, z) {
   // Verificamos si el jugador está dentro de los límites del suelo
   return x >= -9.5 && x <= 9.5 && z >= -9.5 && z <= 9.5;
 }
+
+
+// Event listeners para el control de ratón
+window.addEventListener("mousedown", onMouseDown, false);
+window.addEventListener("mouseup", onMouseUp, false);
+window.addEventListener("mousemove", onMouseMove, false);
+
+// Control de teclado para mover al jugador
+window.addEventListener("keydown", onKeyDown, false);
+window.addEventListener("keyup", onKeyUp, false);
+
+// Llamar a la función de animación
+animate();
+
+document.body.appendChild(renderer.domElement);
