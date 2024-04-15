@@ -1,16 +1,22 @@
-import { Server } from 'ws';
+const ws = new WebSocket("ws://localhost:3000");
 
-const wss = new Server({ port: 3000 });
+console.log(ws);
 
-wss.on('connection', function connection(ws) {
-  console.log('Nuevo jugador conectado');
+// Manejar eventos, como onopen, onmessage, etc.
+ws.onopen = function () {
+  console.log("Conexión establecida");
+  ws.send("Hola servidor");
+};
 
-  ws.on('message', function incoming(message) {
-    console.log('Mensaje recibido desde el cliente:', message);
-    // Procesa el mensaje como desees
-  });
+ws.onmessage = function (event) {
+  console.log("Mensaje recibido:", event.data);
+};
 
-  ws.on('close', function close() {
-    console.log('Jugador desconectado');
-  });
-});
+ws.onerror = function (error) {
+  console.error("Error:", error);
+};
+
+ws.onclose = function () {
+  console.log("Conexión cerrada");
+};
+
