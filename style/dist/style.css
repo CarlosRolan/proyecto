@@ -1,8 +1,0 @@
-@charset "UTF-8";
-body {
-  margin: 0;
-  /*  cursor: none;Oculta el cursor del ratón */
-}
-body canvas {
-  display: block;
-}
