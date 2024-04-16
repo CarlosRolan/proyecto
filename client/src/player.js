@@ -1,4 +1,4 @@
-import * as THREE from "../node_modules/three/build/three.module.js";
+import * as THREE from "/node_modules/three/build/three.module.js";
 
 const player = initPlayer();
 player.position.set(-95, 0.5, -95);

@@ -1,11 +1,17 @@
 // Crear la escena
-import * as THREE from "../node_modules/three/build/three.module.js";
+import * as THREE from "/node_modules/three/build/three.module.js";
 import { player } from "./player.js";
 
 import { camera } from "./camera.js";
 import { maze } from "./maze.js";
 import { ground } from "./ground.js";
-import { mouseEvents, keyEvents, playerActions, cameraRotation, playerRotation } from "./controls.js";
+import {
+  mouseEvents,
+  keyEvents,
+  playerActions,
+  cameraRotation,
+  playerRotation,
+} from "./controls.js";
 
 const renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
@@ -61,3 +67,5 @@ document.body.appendChild(renderer.domElement);
 
 // Llamar a la función de animación
 animate();
+
+export { scene };

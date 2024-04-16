@@ -1,5 +1,5 @@
 // Crear la escena
-import * as THREE from "../node_modules/three/build/three.module.js";
+import * as THREE from "/node_modules/three/build/three.module.js";
 import { player } from "./player.js";
 
 import { camera } from "./camera.js";
@@ -12,8 +12,7 @@ import {
   cameraRotation,
   playerRotation,
 } from "./controls.js";
-
-
+import { sendPosition } from "./client.js";
 
 const renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
@@ -33,11 +32,12 @@ function updateCamera() {
 function updatePlayer() {
   // Mover al jugador
   playerActions.movePlayer(player);
-
   // Actualizar la rotación del jugador para que coincida con la rotación de la cámara
   //const deltaRotation = -camera.rotation.y - player.rotation.y;
   //player.rotation.y += deltaRotation * 0.1;
   player.rotation.y = playerRotation;
+
+  sendPosition(JSON.stringify(player.position));
 }
 
 // Animar la escena
@@ -69,5 +69,3 @@ document.body.appendChild(renderer.domElement);
 
 // Llamar a la función de animación
 animate();
-
-export { scene };

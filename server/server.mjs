@@ -1,29 +1,63 @@
 import { strFromU8 } from "three/examples/jsm/libs/fflate.module.js";
 import { WebSocketServer } from "ws";
+import PlayerConn from "./playerconn.mjs";
 
 const wss = new WebSocketServer({ port: 3000 });
 
-wss.on("connection", function connection(ws) {
-  console.log("Nuevo jugador conectado");
+const players = {};
 
-  // Manejar mensajes entrantes desde el cliente
-  ws.on("message", function incoming(message) {
-    // Aquí puedes procesar los mensajes recibidos del cliente, como la posición del jugador
-    console.log("Mensaje recibido desde el cliente:", strFromU8(message));
+function listenConnections() {
+  //CHANNEL STABLISH
+  wss.on("connection", function connection(ws) {
+    console.log("New player connected");
+
+    // Manejar eventos del WebSocket
+    ws.on("open", function () {
+      console.log("Evento: open");
+    });
+
+    // Manejar mensajes entrantes desde el cliente
+    ws.on("message", function incoming(message) {
+      // Aquí puedes procesar los mensajes recibidos del cliente, como la posición del jugador
+      //TODO posicion
+      //console.log("Mensaje recibido desde el cliente:", strFromU8(message));
+      const parsed = JSON.parse(message);
+      console.log(parsed);
+    });
+
+    ws.on("error", function (error) {
+      console.error("Evento: error", error);
+    });
+
+    // Manejar cierre de conexión
+    ws.on("close", function close() {
+      console.log("Jugador desconectado");
+    });
+
+    // Generar un ID único para el jugador
+    const playerId = PlayerConn.getRandomId();
+    const newPlayerConn = new PlayerConn(playerId, 0, ws);
+
+    players[playerId] = newPlayerConn;
   });
+}
 
-  // Manejar cierre de conexión
-  ws.on("close", function close() {
-    console.log("Jugador desconectado");
-  });
-});
-
-setInterval(async () => {
+// Función para enviar un mensaje a todos los clientes
+function broadcast(message) {
   // Por ejemplo, puedes transmitir este mensaje a todos los otros clientes
   wss.clients.forEach(function each(client) {
-    if (client !== ws && client.readyState === ws.OPEN) {
-      console.log("enviando msg");
-      client.send(message);
+    if (client.readyState == 1) {
+      client.send("SERVER OK");
     }
+    /*if (client !== ws && client.readyState == ws.OPEN) {
+    console.log("enviando msg");
+    client.send(message);
+  }*/
   });
-}, 3000);
+}
+
+listenConnections();
+
+setInterval(() => {
+  broadcast("CONNECTED");
+}, 1);
