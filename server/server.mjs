@@ -11,6 +11,8 @@ function listenConnections() {
   wss.on("connection", function connection(ws) {
     console.log("New player connected");
 
+    const playerId = PlayerConn.getRandomId();
+
     // Manejar eventos del WebSocket
     ws.on("open", function () {
       console.log("Evento: open");
@@ -35,18 +37,21 @@ function listenConnections() {
     });
 
     // Generar un ID único para el jugador
-    const playerId = PlayerConn.getRandomId();
+
     const newPlayerConn = new PlayerConn(playerId, 0, ws);
 
     players[playerId] = newPlayerConn;
+
+    
+
   });
 }
 
 // Función para enviar un mensaje a todos los clientes
-function broadcast(message) {
+function broadcast(message, ws) {
   // Por ejemplo, puedes transmitir este mensaje a todos los otros clientes
   wss.clients.forEach(function each(client) {
-    if (client.readyState == 1) {
+    if (client.readyState == 1 && client != ws) {
       client.send("SERVER OK");
     }
     /*if (client !== ws && client.readyState == ws.OPEN) {
@@ -56,8 +61,10 @@ function broadcast(message) {
   });
 }
 
+
+
 listenConnections();
 
 setInterval(() => {
   broadcast("CONNECTED");
-}, 1);
+}, 5000);

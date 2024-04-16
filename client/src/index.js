@@ -12,7 +12,7 @@ import {
   cameraRotation,
   playerRotation,
 } from "./controls.js";
-import { sendPosition } from "./client.js";
+import { sendPosition, id } from "./client.js";
 
 const renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
@@ -37,7 +37,12 @@ function updatePlayer() {
   //player.rotation.y += deltaRotation * 0.1;
   player.rotation.y = playerRotation;
 
-  sendPosition(JSON.stringify(player.position));
+  const positionData = {
+    id: id,
+    position: player.position,
+  };
+
+  sendPosition(JSON.stringify(positionData));
 }
 
 // Animar la escena

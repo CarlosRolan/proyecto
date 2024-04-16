@@ -1,6 +1,5 @@
-
-
 const ws = new WebSocket("ws://localhost:3000");
+let id = null;
 
 console.log(ws);
 
@@ -11,7 +10,13 @@ ws.onopen = function () {
 };
 
 ws.onmessage = function (event) {
-  console.log("Mensaje recibido:", event.data);
+  try {
+    const serverMsg = JSON.parse(event.data);
+    console.log(serverMsg);
+    id = serverMsg.id;
+  } catch (error) {
+    console.log(event.data);
+  }
 };
 
 ws.onerror = function (error) {
@@ -23,11 +28,7 @@ ws.onclose = function () {
 };
 
 function sendPosition(position) {
-
-  if (ws.readyState == ws.OPEN) 
-  ws.send(position);
+  if (ws.readyState == ws.OPEN) ws.send(position);
 }
 
-
-
-export { sendPosition };
+export { sendPosition, id };
