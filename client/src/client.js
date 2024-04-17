@@ -7,6 +7,9 @@ console.log(ws);
 ws.onopen = function () {
   console.log("Conexión establecida");
   //ws.send("Hola servidor");
+  ws.onmessage = function (event) {
+    id = event.data;
+  }
 };
 
 ws.onmessage = function (event) {

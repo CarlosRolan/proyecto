@@ -25,6 +25,13 @@ function listenConnections() {
       //console.log("Mensaje recibido desde el cliente:", strFromU8(message));
       const parsed = JSON.parse(message);
       console.log(parsed);
+
+      wss.clients.forEach(function each(client) {
+        if (client !== ws && client.readyState == ws.OPEN) {
+          console.log("enviando msg");
+          client.send(message);
+        }
+      });
     });
 
     ws.on("error", function (error) {
@@ -40,10 +47,9 @@ function listenConnections() {
 
     const newPlayerConn = new PlayerConn(playerId, 0, ws);
 
+    newPlayerConn.ws.send(playerId);
+
     players[playerId] = newPlayerConn;
-
-    
-
   });
 }
 
@@ -61,10 +67,8 @@ function broadcast(message, ws) {
   });
 }
 
-
-
 listenConnections();
 
-setInterval(() => {
-  broadcast("CONNECTED");
-}, 5000);
+// setInterval(() => {
+//   broadcast("CONNECTED");
+// }, 5000);
