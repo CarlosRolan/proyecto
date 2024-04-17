@@ -13,30 +13,32 @@ let lastMouseX = null;
 let cameraRotation = 0;
 let playerRotation = 0;
 
-function movePlayer(player) {
+function movePlayer(oldPosition) {
   // Calculamos las posiciones candidatas del jugador
-  let nextX = player.position.x;
-  let nextZ = player.position.z;
+  let x = oldPosition.x;
+  let y = oldPosition.y;
+  let z = oldPosition.z;
 
   if (keys.W) {
-    nextX += moveSpeed * Math.sin(playerRotation);
-    nextZ += moveSpeed * Math.cos(playerRotation);
+    x += moveSpeed * Math.sin(playerRotation);
+    z += moveSpeed * Math.cos(playerRotation);
   }
   if (keys.A) {
-    nextX += moveSpeed * Math.cos(playerRotation);
-    nextZ -= moveSpeed * Math.sin(playerRotation);
+    x += moveSpeed * Math.cos(playerRotation);
+    z -= moveSpeed * Math.sin(playerRotation);
   }
   if (keys.S) {
-    nextX -= moveSpeed * Math.sin(playerRotation);
-    nextZ -= moveSpeed * Math.cos(playerRotation);
+    x -= moveSpeed * Math.sin(playerRotation);
+    z -= moveSpeed * Math.cos(playerRotation);
   }
   if (keys.D) {
-    nextX -= moveSpeed * Math.cos(playerRotation);
-    nextZ += moveSpeed * Math.sin(playerRotation);
+    x -= moveSpeed * Math.cos(playerRotation);
+    z += moveSpeed * Math.sin(playerRotation);
   }
 
-  player.position.x = nextX;
-  player.position.z = nextZ;
+  const newPos = { x, y, z };
+
+  return newPos;
 
   /* Verificamos si el jugador está dentro del suelo
  if (isPlayerOnGround(nextX, nextZ)) {

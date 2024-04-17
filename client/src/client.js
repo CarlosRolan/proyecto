@@ -1,8 +1,6 @@
-import { player, setId } from "./player.js";
+
 
 const ws = new WebSocket("ws://localhost:3000");
-
-console.log(ws);
 
 // Manejar eventos, como onopen, onmessage, etc.
 ws.onopen = function () {
@@ -20,7 +18,7 @@ ws.onmessage = function (event) {
     const serverMsg = JSON.parse(event.data);
     console.log(serverMsg);
     console.log(serverMsg.id);
-    setId(serverMsg.id);
+    //setId(serverMsg.id);
   } catch (error) {
     console.log(event.data);
   }

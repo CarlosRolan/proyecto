@@ -75,11 +75,6 @@ function broadcast(message, ws) {
 
 listenConnections();
 
-function emitPositions() {
-  array.forEach(element => {
-    
-  });
-}
 
 // setInterval(() => {
 //   broadcast("CONNECTED");
