@@ -49,12 +49,13 @@ function listenConnections() {
 
     // Generar un ID único para el jugador
 
-    const newPlayerConn = new PlayerConn(playerId, 0, ws);
+    const newPlayerConn = new PlayerConn(playerId, ws);
 
     console.log("Assiging id " + playerId);
 
     players[playerId] = newPlayerConn;
-    newPlayerConn.sendPlayerId(playerId);
+    console.log(players[playerId]);
+    players[playerId].sendPlayerId(playerId);
   });
 }
 
@@ -73,6 +74,12 @@ function broadcast(message, ws) {
 }
 
 listenConnections();
+
+function emitPositions() {
+  array.forEach(element => {
+    
+  });
+}
 
 // setInterval(() => {
 //   broadcast("CONNECTED");

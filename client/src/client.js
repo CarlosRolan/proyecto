@@ -1,3 +1,5 @@
+import { player, setId } from "./player.js";
+
 const ws = new WebSocket("ws://localhost:3000");
 
 console.log(ws);
@@ -17,6 +19,8 @@ ws.onmessage = function (event) {
   try {
     const serverMsg = JSON.parse(event.data);
     console.log(serverMsg);
+    console.log(serverMsg.id);
+    setId(serverMsg.id);
   } catch (error) {
     console.log(event.data);
   }
