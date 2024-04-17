@@ -1,6 +1,6 @@
 // Crear la escena
 import * as THREE from "/node_modules/three/build/three.module.js";
-import { player } from "./player.js";
+import { player, getId, setId } from "./player.js";
 
 import { camera } from "./camera.js";
 import { maze } from "./maze.js";
@@ -13,8 +13,9 @@ import {
   playerRotation,
 } from "./controls.js";
 
-const renderer = new THREE.WebGLRenderer();
-renderer.setSize(window.innerWidth, window.innerHeight);
+import { renderer } from "./renderer.js";
+
+import { sendPosition } from "./client.js";
 
 const scene = new THREE.Scene();
 scene.add(maze);
@@ -36,6 +37,13 @@ function updatePlayer() {
   //const deltaRotation = -camera.rotation.y - player.rotation.y;
   //player.rotation.y += deltaRotation * 0.1;
   player.rotation.y = playerRotation;
+
+  const newPosition = {
+    id: getId(),
+    position: player.position,
+  };
+
+  sendPosition(JSON.stringify(newPosition));
 }
 
 // Animar la escena
@@ -68,4 +76,4 @@ document.body.appendChild(renderer.domElement);
 // Llamar a la función de animación
 animate();
 
-export { scene };
+export { animate };

@@ -1,8 +1,7 @@
 class PlayerConn {
-  constructor(id, position, ws) {
+  constructor(id, ws) {
     this.id = id;
     this.ws = ws;
-    this.position = position;
   }
 
   // Generar un ID único para el jugador
@@ -10,21 +9,25 @@ class PlayerConn {
     return Math.random().toString(36).substr(2, 9);
   }
 
-  sendPlayerId(playerId, ws) {
+  sendPlayerId(playerId) {
     const playerAssignation = {
       id: playerId,
     };
 
     try {
-      ws.send(JSON.stringify(playerAssignation));
+      this.ws.send(JSON.stringify(playerAssignation));
     } catch (error) {
       console.log("ERROR TRYING TO SEND ID player");
     }
   }
 
   // Métodos para actualizar el estado del jugador, como moverse o recibir daño
-  move(newPosition) {
-    this.position = newPosition;
+  sendPosition() {
+    try {
+      this.ws.send(JSON.stringify("new position"));
+    } catch (error) {
+      console.log("ERROR TRYING TO SEND ID player");
+    }
   }
 }
 

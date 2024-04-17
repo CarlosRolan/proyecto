@@ -23,15 +23,19 @@ function listenConnections() {
       // Aquí puedes procesar los mensajes recibidos del cliente, como la posición del jugador
       //TODO posicion
       //console.log("Mensaje recibido desde el cliente:", strFromU8(message));
-      const parsed = JSON.parse(message);
-      console.log(parsed);
+      try {
+        const parsed = JSON.parse(message);
+        console.log(parsed);
+      } catch (error) {
+        console.log(strFromU8(message));
+      }
 
-      wss.clients.forEach(function each(client) {
-        if (client !== ws && client.readyState == ws.OPEN) {
-          console.log("enviando msg");
-          client.send(message);
-        }
-      });
+      // wss.clients.forEach(function each(client) {
+      //   if (client.readyState == ws.OPEN) {
+      //     console.log("enviando msg");
+      //     client.send(message);
+      //   }
+      // });
     });
 
     ws.on("error", function (error) {
@@ -47,9 +51,10 @@ function listenConnections() {
 
     const newPlayerConn = new PlayerConn(playerId, 0, ws);
 
-    newPlayerConn.ws.send(playerId);
+    console.log("Assiging id " + playerId);
 
     players[playerId] = newPlayerConn;
+    newPlayerConn.sendPlayerId(playerId);
   });
 }
 
