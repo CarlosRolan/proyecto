@@ -11,8 +11,6 @@ function listenConnections() {
   wss.on("connection", function connection(ws) {
     console.log("New player connected");
 
-    const playerId = PlayerConn.getRandomId();
-
     // Manejar eventos del WebSocket
     ws.on("open", function () {
       console.log("Evento: open");
@@ -48,10 +46,7 @@ function listenConnections() {
     });
 
     // Generar un ID único para el jugador
-
     const newPlayerConn = new PlayerConn(playerId, ws);
-
-    console.log("Assiging id " + playerId);
 
     players[playerId] = newPlayerConn;
     console.log(players[playerId]);

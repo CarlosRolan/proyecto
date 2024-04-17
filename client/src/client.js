@@ -1,5 +1,4 @@
 
-
 const ws = new WebSocket("ws://localhost:3000");
 
 // Manejar eventos, como onopen, onmessage, etc.

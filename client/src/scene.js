@@ -38,9 +38,11 @@ function updatePlayer() {
   //const deltaRotation = -camera.rotation.y - player.rotation.y;
   //player.rotation.y += deltaRotation * 0.1;
   p.mesh.rotation.y = playerRotation;
+
   // Mover al jugador
   const newPos = playerActions.movePlayer(p.mesh.position);
 
+  //WE CHECK IF POSITION HAS CHANGED
   if (newPos.x != p.mesh.position.x || newPos.y != p.mesh.position.y || newPos.z != p.mesh.position.z) {
     p.move(newPos.x, newPos.y, newPos.z);
 
@@ -80,7 +82,5 @@ window.addEventListener("keyup", keyEvents.onKeyUp, false);
 
 document.body.appendChild(renderer.domElement);
 
-// Llamar a la función de animación
-animate();
 
 export { animate };
