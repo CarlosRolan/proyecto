@@ -25,4 +25,8 @@ class Player {
 
 const p = new Player();
 
-export { p };
+console.log(p);
+
+const enemies = new Set();
+
+export { p, enemies };

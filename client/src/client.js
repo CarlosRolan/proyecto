@@ -14,11 +14,11 @@ ws.onopen = function () {
 };
 
 ws.onmessage = function (event) {
-  console.log("MSG RECIBIDO");
   try {
     const serverMsg = JSON.parse(event.data);
     console.log(serverMsg);
   } catch (error) {
+    console.log(error);
     console.log(event.data);
   }
 };

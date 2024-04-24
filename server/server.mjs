@@ -25,15 +25,21 @@ function listenConnections() {
 
         if (playerIds.has(parsed.id)) {
           console.log(parsed);
+          wss.clients.forEach(function each(client) {
+            if (client != ws) {
+              client.send(JSON.stringify(parsed));
+            }
+          });
         } else {
           console.log("New player connected");
           const newPlayerConn = new PlayerConn(parsed, ws);
-          playerIds.add(parsed)
+          playerIds.add(parsed);
           wss.clients.forEach(function each(client) {
-            client.send("New player in game")
+            if (client != ws) {
+              client.send("New player in game");
+            }
           });
         }
-
       } catch (error) {
         console.log("ERROR al parsear a JSON");
         console.log(error);
