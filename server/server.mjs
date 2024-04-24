@@ -24,8 +24,12 @@ function listenConnections() {
       try {
         const parsed = JSON.parse(message);
         console.log(parsed);
+
+        players.forEach(iter => {
+          
+        });
       } catch (error) {
-        console.log(strFromU8(message));
+        console.log(error);
       }
 
       // wss.clients.forEach(function each(client) {
@@ -46,11 +50,11 @@ function listenConnections() {
     });
 
     // Generar un ID único para el jugador
-    const newPlayerConn = new PlayerConn(playerId, ws);
+    //const newPlayerConn = new PlayerConn(playerId, ws);
 
-    players[playerId] = newPlayerConn;
-    console.log(players[playerId]);
-    players[playerId].sendPlayerId(playerId);
+    //players[playerId] = newPlayerConn;
+    //console.log(players[playerId]);
+    //players[playerId].sendPlayerId(playerId);
   });
 }
 
@@ -69,7 +73,6 @@ function broadcast(message, ws) {
 }
 
 listenConnections();
-
 
 // setInterval(() => {
 //   broadcast("CONNECTED");

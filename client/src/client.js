@@ -1,13 +1,15 @@
-
 const ws = new WebSocket("ws://localhost:3000");
+
+let id = null;
 
 // Manejar eventos, como onopen, onmessage, etc.
 ws.onopen = function () {
   console.log("Conexión establecida");
   try {
-    ws.send("Hola servidor");
+    generateId();
+    sendId();
   } catch (error) {
-    ws.send("Hola servidor catched");
+    ws.send(error);
   }
 };
 
@@ -16,8 +18,6 @@ ws.onmessage = function (event) {
   try {
     const serverMsg = JSON.parse(event.data);
     console.log(serverMsg);
-    console.log(serverMsg.id);
-    //setId(serverMsg.id);
   } catch (error) {
     console.log(event.data);
   }
@@ -33,6 +33,16 @@ ws.onclose = function () {
 
 function sendPosition(position) {
   if (ws.readyState == ws.OPEN) ws.send(position);
+}
+
+function sendId() {
+  if (id != null) {
+    ws.send(id);
+  }
+}
+
+function generateId() {
+  id = Math.floor(Math.random() * 100);
 }
 
 export { sendPosition };
