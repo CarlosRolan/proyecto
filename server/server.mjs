@@ -4,13 +4,11 @@ import PlayerConn from "./playerconn.mjs";
 
 const wss = new WebSocketServer({ port: 3000 });
 
-const players = {};
+const playerIds = new Set();
 
 function listenConnections() {
   //CHANNEL STABLISH
   wss.on("connection", function connection(ws) {
-    console.log("New player connected");
-
     // Manejar eventos del WebSocket
     ws.on("open", function () {
       console.log("Evento: open");
@@ -25,10 +23,19 @@ function listenConnections() {
         const parsed = JSON.parse(message);
         console.log(parsed);
 
-        players.forEach(iter => {
-          
-        });
+        if (playerIds.has(parsed.id)) {
+          console.log(parsed);
+        } else {
+          console.log("New player connected");
+          const newPlayerConn = new PlayerConn(parsed, ws);
+          playerIds.add(parsed)
+          wss.clients.forEach(function each(client) {
+            client.send("New player in game")
+          });
+        }
+
       } catch (error) {
+        console.log("ERROR al parsear a JSON");
         console.log(error);
       }
 

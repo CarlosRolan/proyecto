@@ -1,13 +1,13 @@
+import { p } from "./player.js";
+
 const ws = new WebSocket("ws://localhost:3000");
 
-let id = null;
 
 // Manejar eventos, como onopen, onmessage, etc.
 ws.onopen = function () {
   console.log("Conexión establecida");
   try {
-    generateId();
-    sendId();
+    sendId(p.id);
   } catch (error) {
     ws.send(error);
   }
@@ -35,14 +35,11 @@ function sendPosition(position) {
   if (ws.readyState == ws.OPEN) ws.send(position);
 }
 
-function sendId() {
+function sendId(id) {
   if (id != null) {
     ws.send(id);
   }
 }
 
-function generateId() {
-  id = Math.floor(Math.random() * 100);
-}
 
 export { sendPosition };
