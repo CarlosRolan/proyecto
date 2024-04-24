@@ -1,7 +1,7 @@
-import * as THREE from "/node_modules/three/build/three.module.js";
+import * as THREE from "../../node_modules/three/build/three.module.js";
 
-class Player {
-  constructor() {
+export class Player {
+  constructor(id) {
     const geometry = new THREE.BoxGeometry();
 
     const material = [
@@ -15,7 +15,11 @@ class Player {
 
     this.mesh = new THREE.Mesh(geometry, material);
     this.mesh.position.set(-95, 0.5, -95);
-    this.id = Math.floor(Math.random() * 100);
+    if (id == null) {
+      this.id = Math.floor(Math.random() * 100);
+    } else {
+      this.id = id;
+    }
   }
 
   move(x, y, z) {

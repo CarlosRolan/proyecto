@@ -1,5 +1,5 @@
 // Crear la escena
-import * as THREE from "/node_modules/three/build/three.module.js";
+import * as THREE from "../../node_modules/three/build/three.module.js";
 import { p } from "./player.js";
 
 import { camera } from "./camera.js";
@@ -56,6 +56,12 @@ function updatePlayer() {
   }
 }
 
+function updateEnemies(enemies) {
+  enemies.forEach((enemy) => {
+    scene.add(enemy.mesh);
+  });
+}
+
 // Animar la escena
 function animate() {
   requestAnimationFrame(animate);
@@ -83,4 +89,4 @@ window.addEventListener("keyup", keyEvents.onKeyUp, false);
 
 document.body.appendChild(renderer.domElement);
 
-export { animate };
+export { animate, updateEnemies };

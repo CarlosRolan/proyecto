@@ -2,7 +2,7 @@ import { strFromU8 } from "three/examples/jsm/libs/fflate.module.js";
 import { WebSocketServer } from "ws";
 import PlayerConn from "./playerconn.mjs";
 
-const wss = new WebSocketServer({ port: 3000 });
+const wss = new WebSocketServer({ port: 5500 });
 
 const playerIds = new Set();
 
