@@ -1,6 +1,5 @@
 import { strFromU8 } from "three/examples/jsm/libs/fflate.module.js";
 import { WebSocketServer } from "ws";
-import PlayerConn from "./playerconn.mjs";
 
 const wss = new WebSocketServer({ port: 5500 });
 
@@ -9,7 +8,6 @@ const playerIds = new Set();
 function listenConnections() {
   //CHANNEL STABLISH
   wss.on("connection", function connection(ws) {
-    
     // Manejar eventos del WebSocket
     ws.on("open", function () {
       console.log("Evento: open");
@@ -33,11 +31,12 @@ function listenConnections() {
           });
         } else {
           console.log("New player connected");
-          const newPlayerConn = new PlayerConn(parsed, ws);
+          ws.id = parsed;
+
           playerIds.add(parsed);
           wss.clients.forEach(function each(client) {
             if (client != ws) {
-              client.send("New player in game");
+              client.send("New player in game " + client.id);
             }
           });
         }
@@ -60,6 +59,11 @@ function listenConnections() {
 
     // Manejar cierre de conexión
     ws.on("close", function close() {
+      wss.clients.forEach(function each(client) {
+        if (client != ws) {
+          client.send(ws.id + "CLOSED");
+        }
+      });
       console.log("Jugador desconectado");
     });
 
@@ -87,7 +91,7 @@ function broadcast(message, ws) {
 }
 
 listenConnections();
- 
+
 // setInterval(() => {
 //   broadcast("CONNECTED");
 // }, 5000);

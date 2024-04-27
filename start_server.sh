@@ -1,2 +1,2 @@
-cd \server;
+cd \src;
 sudo node server.mjs

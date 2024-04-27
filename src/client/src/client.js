@@ -17,8 +17,6 @@ ws.onmessage = function (event) {
   try {
     const serverMsg = JSON.parse(event.data);
 
-    console.log(serverMsg);
-
     if (serverMsg != null) {
       const enemy = new Player(serverMsg.id);
 
@@ -29,14 +27,15 @@ ws.onmessage = function (event) {
           isThere = true;
           const { x, y, z } = serverMsg.position;
           e.move(x, y, z);
-          e.rotate(serverMsg.rotation)
+          e.rotate(serverMsg.rotation);
         }
       });
 
       if (!isThere) {
         enemies.add(enemy);
-        updateEnemies(enemies);
       }
+
+      updateEnemies(enemies);
     }
   } catch (error) {
     console.log(error);
@@ -48,7 +47,7 @@ ws.onerror = function (error) {
   console.error("Error:", error);
 };
 
-ws.onclose = function () {
+ws.onclose = function (args) {
   console.log("Conexión cerrada");
 };
 
