@@ -15,11 +15,16 @@ export class Player {
 
     this.mesh = new THREE.Mesh(geometry, material);
     this.mesh.position.set(-95, 0.5, -95);
+
     if (id == null) {
       this.id = Math.floor(Math.random() * 100);
     } else {
       this.id = id;
     }
+    this.mesh.name = id;
+
+    console.log("RANDMO ID " + this.id);
+    console.log(this.mesh);
   }
 
   move(x, y, z) {
@@ -32,8 +37,6 @@ export class Player {
 }
 
 const p = new Player();
-
-console.log(p);
 
 const enemies = new Set();
 

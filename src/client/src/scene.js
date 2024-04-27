@@ -1,6 +1,6 @@
 // Crear la escena
 import * as THREE from "../../../node_modules/three/build/three.module.js";
-import { p } from "./player.js";
+import { enemies, p } from "./player.js";
 
 import { camera } from "./camera.js";
 import { maze } from "./maze.js";
@@ -64,6 +64,21 @@ function updateEnemies(enemies) {
   });
 }
 
+function addEnemy(enemy) {
+  enemies.add(enemy);
+}
+
+function deleteEnemy(enemyId) {
+  enemies.forEach((e) => {
+    if (e.id == enemyId) {
+      enemies.delete(e);
+      const toDel = scene.getObjectByName(enemyId);
+      scene.remove(toDel);
+      return;
+    }
+  });
+}
+
 // Animar la escena
 function animate() {
   requestAnimationFrame(animate);
@@ -91,4 +106,4 @@ window.addEventListener("keyup", keyEvents.onKeyUp, false);
 
 document.body.appendChild(renderer.domElement);
 
-export { animate, updateEnemies };
+export { animate, updateEnemies, deleteEnemy, addEnemy };

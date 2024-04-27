@@ -1,5 +1,6 @@
 import { Player, p, enemies } from "./player.js";
-import { updateEnemies } from "./scene.js";
+import { updateEnemies, deleteEnemy } from "./scene.js";
+import { ACTION_EXIT, ACTION_MSG, ACTION_UPDATE } from "../../msg.mjs";
 
 const ws = new WebSocket("ws://localhost:5500");
 
@@ -16,27 +17,7 @@ ws.onopen = function () {
 ws.onmessage = function (event) {
   try {
     const serverMsg = JSON.parse(event.data);
-
-    if (serverMsg != null) {
-      const enemy = new Player(serverMsg.id);
-
-      let isThere = false;
-
-      enemies.forEach((e) => {
-        if (e.id == enemy.id) {
-          isThere = true;
-          const { x, y, z } = serverMsg.position;
-          e.move(x, y, z);
-          e.rotate(serverMsg.rotation);
-        }
-      });
-
-      if (!isThere) {
-        enemies.add(enemy);
-      }
-
-      updateEnemies(enemies);
-    }
+    handleServerResponse(serverMsg);
   } catch (error) {
     console.log(error);
     console.log(event.data);
@@ -58,6 +39,48 @@ function sendPosition(position) {
 function sendId(id) {
   if (id != null) {
     ws.send(id);
+  }
+}
+
+function handleServerResponse(serverMsg) {
+  console.log(serverMsg);
+
+  const ACTION = serverMsg.action;
+
+  const CONTENT = JSON.parse(serverMsg.content);
+
+  switch (ACTION) {
+    case ACTION_MSG:
+      console.log(CONTENT);
+      break;
+    case ACTION_EXIT:
+      console.log("ACCION DE ELIMINAR JUGADOR");
+      deleteEnemy(CONTENT)
+      break;
+    case ACTION_UPDATE:
+      const enemy = new Player(CONTENT.id);
+
+      let isThere = false;
+
+      enemies.forEach((e) => {
+        if (e.id == enemy.id) {
+          isThere = true;
+          const { x, y, z } = CONTENT.position;
+          e.move(x, y, z);
+          e.rotate(CONTENT.rotation);
+        }
+      });
+
+      if (!isThere) {
+        enemies.add(enemy);
+      }
+
+      updateEnemies(enemies);
+
+      break;
+    default:
+      console.log("default");
+      break;
   }
 }
 

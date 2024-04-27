@@ -1,2 +1,2 @@
 cd \src;
-sudo node server.mjs
+node server.mjs
