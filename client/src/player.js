@@ -25,6 +25,10 @@ export class Player {
   move(x, y, z) {
     this.mesh.position.set(x, y, z);
   }
+
+  rotate(newRotation) {
+    this.mesh.rotation.y = newRotation;
+  }
 }
 
 const p = new Player();

@@ -1,7 +1,7 @@
 import { Player, p, enemies } from "./player.js";
 import { updateEnemies } from "./scene.js";
 
-const ws = new WebSocket("ws://192.180.2.44:5500");
+const ws = new WebSocket("ws://localhost:5500");
 
 // Manejar eventos, como onopen, onmessage, etc.
 ws.onopen = function () {
@@ -16,6 +16,7 @@ ws.onopen = function () {
 ws.onmessage = function (event) {
   try {
     const serverMsg = JSON.parse(event.data);
+
     console.log(serverMsg);
 
     if (serverMsg != null) {
@@ -28,6 +29,7 @@ ws.onmessage = function (event) {
           isThere = true;
           const { x, y, z } = serverMsg.position;
           e.move(x, y, z);
+          e.rotate(serverMsg.rotation)
         }
       });
 
@@ -35,7 +37,6 @@ ws.onmessage = function (event) {
         enemies.add(enemy);
         updateEnemies(enemies);
       }
-
     }
   } catch (error) {
     console.log(error);

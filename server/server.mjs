@@ -9,6 +9,7 @@ const playerIds = new Set();
 function listenConnections() {
   //CHANNEL STABLISH
   wss.on("connection", function connection(ws) {
+    
     // Manejar eventos del WebSocket
     ws.on("open", function () {
       console.log("Evento: open");
@@ -86,7 +87,7 @@ function broadcast(message, ws) {
 }
 
 listenConnections();
-
+ 
 // setInterval(() => {
 //   broadcast("CONNECTED");
 // }, 5000);

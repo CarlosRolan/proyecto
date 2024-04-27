@@ -13,7 +13,7 @@ let lastMouseX = null;
 let cameraRotation = 0;
 let playerRotation = 0;
 
-function movePlayer(oldPosition) {
+function calculateNewPos(oldPosition) {
   // Calculamos las posiciones candidatas del jugador
   let x = oldPosition.x;
   let y = oldPosition.y;
@@ -68,6 +68,10 @@ function onMouseMove(event) {
   lastMouseX = event.clientX;
 }
 
+function getRotation() {
+  return playerRotation;
+}
+
 function onKeyDown(event) {
   switch (event.key.toUpperCase()) {
     case "W":
@@ -104,12 +108,11 @@ function onKeyUp(event) {
 
 const keyEvents = { onKeyDown, onKeyUp };
 const mouseEvents = { onMouseDown, onMouseUp, onMouseMove };
-const playerActions = { movePlayer };
+const playerActions = { calculateNewPos, getRotation };
 
 export {
   keyEvents,
   mouseEvents,
-  playerRotation,
-  cameraRotation,
   playerActions,
+  cameraRotation
 };

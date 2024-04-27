@@ -10,7 +10,6 @@ import {
   keyEvents,
   playerActions,
   cameraRotation,
-  playerRotation,
 } from "./controls.js";
 
 import { renderer } from "./renderer.js";
@@ -34,22 +33,25 @@ function updatePlayer() {
   // Actualizar la rotación del jugador para que coincida con la rotación de la cámara
   //const deltaRotation = -camera.rotation.y - player.rotation.y;
   //player.rotation.y += deltaRotation * 0.1;
-  p.mesh.rotation.y = playerRotation;
 
   // Mover al jugador
-  const newPos = playerActions.movePlayer(p.mesh.position);
+  const newPos = playerActions.calculateNewPos(p.mesh.position);
+  const newRotation = playerActions.getRotation();
 
   //WE CHECK IF POSITION HAS CHANGED
   if (
     newPos.x != p.mesh.position.x ||
     newPos.y != p.mesh.position.y ||
-    newPos.z != p.mesh.position.z
+    newPos.z != p.mesh.position.z ||
+    newRotation != p.mesh.rotation.y
   ) {
+    p.rotate(newRotation);
     p.move(newPos.x, newPos.y, newPos.z);
 
     const newPosition = {
       id: p.id,
       position: p.mesh.position,
+      rotation: p.mesh.rotation.y,
     };
 
     sendPosition(JSON.stringify(newPosition));
