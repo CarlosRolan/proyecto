@@ -14,8 +14,9 @@ export default class Msg {
   }
 }
 
+const ACTION_REGISTER = "REGISTER";
 const ACTION_EXIT = "EXIT";
 const ACTION_UPDATE = "UPDATE";
 const ACTION_MSG = "MESSAGE";
 
-export { ACTION_EXIT, ACTION_UPDATE, ACTION_MSG };
+export { ACTION_EXIT, ACTION_UPDATE, ACTION_MSG, ACTION_REGISTER };

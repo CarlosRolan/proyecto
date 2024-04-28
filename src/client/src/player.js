@@ -1,8 +1,10 @@
-import * as THREE from "../../../node_modules/three/build/three.module.js";
+import * as THREE from "three";
 
 export class Player {
   constructor(id) {
     const geometry = new THREE.BoxGeometry();
+
+ 
 
     const material = [
       new THREE.MeshBasicMaterial({ color: 0x00ff00 }), // Derecha (frente)
@@ -22,9 +24,6 @@ export class Player {
       this.id = id;
     }
     this.mesh.name = id;
-
-    console.log("RANDMO ID " + this.id);
-    console.log(this.mesh);
   }
 
   move(x, y, z) {
@@ -33,6 +32,10 @@ export class Player {
 
   rotate(newRotation) {
     this.mesh.rotation.y = newRotation;
+  }
+
+  getBoundingBox() {
+    return this.mesh.geometry.boundingBox;
   }
 }
 

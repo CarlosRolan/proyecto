@@ -1,5 +1,5 @@
 // Crear la escena
-import * as THREE from "../../../node_modules/three/build/three.module.js";
+import * as THREE from "three";
 import { enemies, p } from "./player.js";
 
 import { camera } from "./camera.js";
@@ -21,6 +21,23 @@ scene.add(maze);
 scene.add(p.mesh);
 scene.add(ground);
 
+// Create an OBJ loader
+// var loader = new OBJLoader();
+
+// // Load the OBJ file
+// loader.load(
+//   "./data/untitled.obj",
+//   function (object) {
+//     scene.add(object);
+//   },
+//   function (xhr) {
+//     console.log((xhr.loaded / xhr.total) * 100 + "% loaded");
+//   },
+//   function (error) {
+//     console.error("Error loading the OBJ file", error);
+//   }
+// );
+
 // Actualizar la posición de la cámara para seguir al jugador
 function updateCamera() {
   camera.position.x = p.mesh.position.x - 10 * Math.sin(cameraRotation);
@@ -35,6 +52,7 @@ function updatePlayer() {
   //player.rotation.y += deltaRotation * 0.1;
 
   // Mover al jugador
+
   const newPos = playerActions.calculateNewPos(p.mesh.position);
   const newRotation = playerActions.getRotation();
 
@@ -45,16 +63,20 @@ function updatePlayer() {
     newPos.z != p.mesh.position.z ||
     newRotation != p.mesh.rotation.y
   ) {
-    p.rotate(newRotation);
-    p.move(newPos.x, newPos.y, newPos.z);
+    if (!isPlayerOnGround(newPos.x, newPos.z)) {
+      console.log("NOPE");
+    } else {
+      p.rotate(newRotation);
+      p.move(newPos.x, newPos.y, newPos.z);
 
-    const newPosition = {
-      id: p.id,
-      position: p.mesh.position,
-      rotation: p.mesh.rotation.y,
-    };
+      const newPosition = {
+        id: p.id,
+        position: p.mesh.position,
+        rotation: p.mesh.rotation.y,
+      };
 
-    sendPosition(JSON.stringify(newPosition));
+      sendPosition(JSON.stringify(newPosition));
+    }
   }
 }
 
@@ -92,7 +114,11 @@ function animate() {
 
 function isPlayerOnGround(x, z) {
   // Verificamos si el jugador está dentro de los límites del suelo
-  return x >= -9.5 && x <= 9.5 && z >= -9.5 && z <= 9.5;
+  return x >= -100 && x <= 100 && z >= -100 && z <= 100;
+}
+
+function colliding() {
+  const box3 = new THREE.Box3().setFromObject(maze.raycast());
 }
 
 // Event listeners para el control de ratón

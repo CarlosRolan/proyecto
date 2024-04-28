@@ -1,14 +1,20 @@
 import { Player, p, enemies } from "./player.js";
 import { updateEnemies, deleteEnemy } from "./scene.js";
-import { ACTION_EXIT, ACTION_MSG, ACTION_UPDATE } from "../../msg.mjs";
+import Msg, {
+  ACTION_EXIT,
+  ACTION_MSG,
+  ACTION_UPDATE,
+  ACTION_REGISTER,
+} from "../../msg.mjs";
 
-const ws = new WebSocket("ws://localhost:5500");
+const ws = new WebSocket("ws://192.168.1.63:5500");
 
 // Manejar eventos, como onopen, onmessage, etc.
 ws.onopen = function () {
   console.log("Conexión establecida");
   try {
-    sendId(p.id);
+    const msg = new Msg(ACTION_REGISTER, p.id);
+    sendId(msg.pack());
   } catch (error) {
     ws.send(error);
   }
@@ -18,6 +24,7 @@ ws.onmessage = function (event) {
   try {
     const serverMsg = JSON.parse(event.data);
     handleServerResponse(serverMsg);
+    aaaaaaaaaaa;
   } catch (error) {
     console.log(error);
     console.log(event.data);
@@ -55,7 +62,7 @@ function handleServerResponse(serverMsg) {
       break;
     case ACTION_EXIT:
       console.log("ACCION DE ELIMINAR JUGADOR");
-      deleteEnemy(CONTENT)
+      deleteEnemy(CONTENT);
       break;
     case ACTION_UPDATE:
       const enemy = new Player(CONTENT.id);
@@ -83,5 +90,7 @@ function handleServerResponse(serverMsg) {
       break;
   }
 }
+
+setTimeout(() => {}, 3000);
 
 export { sendPosition };

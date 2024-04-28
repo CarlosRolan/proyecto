@@ -110,9 +110,4 @@ const keyEvents = { onKeyDown, onKeyUp };
 const mouseEvents = { onMouseDown, onMouseUp, onMouseMove };
 const playerActions = { calculateNewPos, getRotation };
 
-export {
-  keyEvents,
-  mouseEvents,
-  playerActions,
-  cameraRotation
-};
+export { keyEvents, mouseEvents, playerActions, cameraRotation };
