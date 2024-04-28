@@ -1,7 +1,8 @@
-// Crear la escena
-import * as THREE from "three";
-import { enemies, p } from "./player.js";
+import * as THREE from "../../../three/build/three.module.js";
 
+// Crear la escena
+import { enemies, p } from "./player.js";
+import { spotLight } from "./light.js";
 import { camera } from "./camera.js";
 import { maze } from "./maze.js";
 import { ground } from "./ground.js";
@@ -20,23 +21,8 @@ const scene = new THREE.Scene();
 scene.add(maze);
 scene.add(p.mesh);
 scene.add(ground);
-
-// Create an OBJ loader
-// var loader = new OBJLoader();
-
-// // Load the OBJ file
-// loader.load(
-//   "./data/untitled.obj",
-//   function (object) {
-//     scene.add(object);
-//   },
-//   function (xhr) {
-//     console.log((xhr.loaded / xhr.total) * 100 + "% loaded");
-//   },
-//   function (error) {
-//     console.error("Error loading the OBJ file", error);
-//   }
-// );
+scene.add(spotLight);
+scene.add(spotLight.target);
 
 // Actualizar la posición de la cámara para seguir al jugador
 function updateCamera() {

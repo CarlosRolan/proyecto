@@ -1,4 +1,5 @@
-import * as THREE from "three";
+import * as THREE from "../../../three/build/three.module.js";
+
 // Crear la cámara
 const camera = new THREE.PerspectiveCamera(
   75,

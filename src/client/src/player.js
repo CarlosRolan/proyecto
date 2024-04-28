@@ -1,10 +1,17 @@
-import * as THREE from "three";
+import * as THREE from "../../../three/build/three.module.js";
+
+import { OBJLoader } from "../../../three/examples/jsm/loaders/OBJLoader.js";
+import { ground } from "./ground.js";
+
+//Create an OBJ loader
+var loader = new OBJLoader();
+
+// // Load the OBJ file
 
 export class Player {
   constructor(id) {
+    const group = new THREE.Group();
     const geometry = new THREE.BoxGeometry();
-
- 
 
     const material = [
       new THREE.MeshBasicMaterial({ color: 0x00ff00 }), // Derecha (frente)
@@ -15,7 +22,27 @@ export class Player {
       new THREE.MeshBasicMaterial({ color: 0xffffff }), // Atrás
     ];
 
-    this.mesh = new THREE.Mesh(geometry, material);
+    loader.load(
+      "./data/player.obj",
+      function (object) {
+        object.traverse(function (child) {
+          if (child instanceof THREE.Mesh) {
+            // Add each mesh to the group
+            group.add(child);
+          }
+        });
+      },
+      function (xhr) {
+        console.log((xhr.loaded / xhr.total) * 100 + "% loaded");
+      },
+      function (error) {
+        console.error("Error loading the OBJ file", error);
+      }
+    );
+
+    this.mesh = group;
+
+    //this.mesh = new THREE.Mesh(geometry, material);
     this.mesh.position.set(-95, 0.5, -95);
 
     if (id == null) {

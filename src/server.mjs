@@ -1,5 +1,10 @@
 import { WebSocketServer } from "ws";
-import Msg, { ACTION_EXIT, ACTION_UPDATE, ACTION_MSG } from "./msg.mjs";
+import Msg, {
+  ACTION_EXIT,
+  ACTION_UPDATE,
+  ACTION_MSG,
+  ACTION_REGISTER,
+} from "./msg.mjs";
 
 const wss = new WebSocketServer({ port: 5500 });
 
@@ -17,7 +22,6 @@ function listenConnections() {
     ws.on("message", function incoming(message) {
       try {
         const json = JSON.parse(message);
-        console.log(json);
         if (playerIds.has(json.id)) {
           wss.clients.forEach(function each(client) {
             if (client != ws) {
@@ -27,13 +31,15 @@ function listenConnections() {
             }
           });
         } else {
+          console.log("JSON");
+          console.log(json.content);
           console.log("New player connected" + json);
           console.log("JUGADORES TOTALES " + wss.clients.size);
-          ws.id = json;
-          playerIds.add(json);
+          ws.id = json.content;
+          playerIds.add(json.content);
           wss.clients.forEach(function each(client) {
             if (client != ws) {
-              const msg = new Msg(ACTION_MSG, client.id);
+              const msg = new Msg(ACTION_MSG, json);
               client.send(msg.pack());
             }
           });
