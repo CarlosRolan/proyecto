@@ -24,7 +24,6 @@ ws.onmessage = function (event) {
   try {
     const serverMsg = JSON.parse(event.data);
     handleServerResponse(serverMsg);
-    aaaaaaaaaaa;
   } catch (error) {
     console.log(error);
     console.log(event.data);

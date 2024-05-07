@@ -1,16 +1,14 @@
 import * as THREE from "../../../three/build/three.module.js";
 
-import { OBJLoader } from "../../../three/examples/jsm/loaders/OBJLoader.js";
+//import { OBJLoader } from "../../../three/examples/jsm/loaders/OBJLoader.js";
 import { ground } from "./ground.js";
 
 //Create an OBJ loader
-var loader = new OBJLoader();
-
-// // Load the OBJ file
+//var loader = new OBJLoader();
 
 export class Player {
   constructor(id) {
-    const group = new THREE.Group();
+    //const group = new THREE.Group();
     const geometry = new THREE.BoxGeometry();
 
     const material = [
@@ -22,7 +20,7 @@ export class Player {
       new THREE.MeshBasicMaterial({ color: 0xffffff }), // Atrás
     ];
 
-    loader.load(
+    /*loader.load(
       "./data/player.obj",
       function (object) {
         object.traverse(function (child) {
@@ -40,9 +38,9 @@ export class Player {
       }
     );
 
-    this.mesh = group;
+    this.mesh = group;*/
 
-    //this.mesh = new THREE.Mesh(geometry, material);
+    this.mesh = new THREE.Mesh(geometry, material);
     this.mesh.position.set(-95, 0.5, -95);
 
     if (id == null) {
