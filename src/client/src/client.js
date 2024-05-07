@@ -53,7 +53,7 @@ function handleServerResponse(serverMsg) {
 
   const ACTION = serverMsg.action;
 
-  const CONTENT = JSON.parse(serverMsg.content);
+  const { id, position, rotation } = JSON.parse(serverMsg.content);
 
   switch (ACTION) {
     case ACTION_MSG:
@@ -64,16 +64,16 @@ function handleServerResponse(serverMsg) {
       deleteEnemy(CONTENT);
       break;
     case ACTION_UPDATE:
-      const enemy = new Player(CONTENT.id);
+      const enemy = new Player(id);
 
       let isThere = false;
 
       enemies.forEach((e) => {
         if (e.id == enemy.id) {
           isThere = true;
-          const { x, y, z } = CONTENT.position;
+          const { x, y, z } = position;
           e.move(x, y, z);
-          e.rotate(CONTENT.rotation);
+          e.rotate(rotation);
         }
       });
 
@@ -89,7 +89,5 @@ function handleServerResponse(serverMsg) {
       break;
   }
 }
-
-setTimeout(() => {}, 3000);
 
 export { sendPosition };
