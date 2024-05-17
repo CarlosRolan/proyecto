@@ -5,28 +5,28 @@ import Msg, {
   ACTION_MSG,
   ACTION_UPDATE,
   ACTION_REGISTER,
+  ACTION_NEW_POS,
+  ACTION_NEW_PLAYER,
 } from "../../msg.mjs";
 
 const ws = new WebSocket("ws://192.168.1.63:5500");
 
 // Manejar eventos, como onopen, onmessage, etc.
 ws.onopen = function () {
-  console.log("Conexión establecida");
+  console.log("CONECXION ESTABLISHED");
   try {
     const msg = new Msg(ACTION_REGISTER, p.id);
-    sendId(msg.pack());
+    ws.send(msg.pack());
   } catch (error) {
     ws.send(error);
   }
 };
 
-ws.onmessage = function (event) {
+ws.onmessage = function ({ data }) {
   try {
-    const serverMsg = JSON.parse(event.data);
-    handleServerResponse(serverMsg);
+    handleServerResponse(JSON.parse(data));
   } catch (error) {
     console.log(error);
-    console.log(event.data);
   }
 };
 
@@ -35,35 +35,33 @@ ws.onerror = function (error) {
 };
 
 ws.onclose = function (args) {
-  console.log("Conexión cerrada");
+  console.log("Conecxion CLOSED");
 };
 
 function sendPosition(position) {
-  if (ws.readyState == ws.OPEN) ws.send(position);
-}
-
-function sendId(id) {
-  if (id != null) {
-    ws.send(id);
-  }
+  const msg = new Msg(ACTION_NEW_POS, position);
+  if (ws.readyState == ws.OPEN) ws.send(msg.pack());
 }
 
 function handleServerResponse(serverMsg) {
+  console.log("MSG FROM SERVER");
+  const { ACTION, CONTENT } = serverMsg;
+
   console.log(serverMsg);
-
-  const ACTION = serverMsg.action;
-
-  const { id, position, rotation } = JSON.parse(serverMsg.content);
 
   switch (ACTION) {
     case ACTION_MSG:
       console.log(CONTENT);
       break;
+
     case ACTION_EXIT:
-      console.log("ACCION DE ELIMINAR JUGADOR");
+      console.log("DELETING A PLAYER");
       deleteEnemy(CONTENT);
       break;
-    case ACTION_UPDATE:
+
+    case ACTION_NEW_POS:
+      console.log("UPDATING ENEMY POS");
+      const { id, position, rotation } = CONTENT;
       const enemy = new Player(id);
 
       let isThere = false;
@@ -82,10 +80,10 @@ function handleServerResponse(serverMsg) {
       }
 
       updateEnemies(enemies);
-
       break;
+
     default:
-      console.log("default");
+      console.log("NO ACTION");
       break;
   }
 }
