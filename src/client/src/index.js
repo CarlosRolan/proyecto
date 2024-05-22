@@ -4,4 +4,4 @@ import { p } from "./player.js";
 // Llamar a la función de animación
 animate();
 
-document.getElementById("infoPanel").innerHTML = p.id;
+document.getElementById("idLb").innerHTML = p.id;

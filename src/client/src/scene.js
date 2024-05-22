@@ -17,6 +17,8 @@ import { renderer } from "./renderer.js";
 
 import { sendPosition } from "./client.js";
 
+const GRAVITY_ACCELERATION = 9.8;
+
 const scene = new THREE.Scene();
 scene.add(maze);
 scene.add(p.mesh);
@@ -108,12 +110,25 @@ function updatePlayer() {
       };
       sendPosition(newPosition);
     }
+    //console.log(p.getCurrentPos());
+    document.getElementById("posLb").innerHTML = JSON.stringify(p.getCurrentPos());
   }
-  if (!isPlayerOnGround(p, scene)) {
-    p.mesh.position.y -= GRAVITY_ACCELERATION;
 
-    // Check for collisions with vertical walls and prevent climbing
-    handleVerticalCollisions(p, maze);
+  try {
+    //if (!isPlayerOnGround(p, scene)) {
+    if (p.mesh.position.y > 0.5) {
+
+      if (!p.climbing) {
+        console.log("GRAVITY DOWN");
+        p.mesh.position.y -= 0.1;
+      }
+
+      // Check for collisions with vertical walls and prevent climbing
+      //handleVerticalCollisions(p, maze);
+    }
+    //}
+  } catch (error) {
+    console.log(error);
   }
 }
 
@@ -133,6 +148,8 @@ function handleVerticalCollisions(player, maze) {
     // Ensure mazeBoundingBox is defined and not null
     if (mazeBoundingBox && mazeBoundingBox.min && mazeBoundingBox.max) {
       if (playerBoundingBox.intersectsBox(mazeBoundingBox)) {
+
+        player.climbing = true;
         // Calculate the angle between the player's up direction and the normal of the collided wall
         const playerUpDirection = new THREE.Vector3(0, 1, 0);
         const wallNormal = mazeBoundingBox.getNormal(new THREE.Vector3());
@@ -144,9 +161,11 @@ function handleVerticalCollisions(player, maze) {
           p.mesh.position.y = Math.max(
             p.mesh.position.y,
             mazeBoundingBox.max.y +
-              playerBoundingBox.getSize(new THREE.Vector3()).y / 2
+            playerBoundingBox.getSize(new THREE.Vector3()).y / 2
           );
         }
+      } else {
+        player.climbing = false;
       }
     }
   }
@@ -186,7 +205,12 @@ function animate() {
 
 function isPlayerOnGround(player, scene) {
   // Create a raycaster pointing downward from the player's position
-  const raycaster = new THREE.Raycaster(player.mesh.position.clone(), new THREE.Vector3(0, -1, 0), 0, player.geometry.boundingSphere.radius);
+  const raycaster = new THREE.Raycaster(
+    player.mesh.position.clone(),
+    new THREE.Vector3(0, -1, 0),
+    0,
+    player.geometry.boundingSphere.radius
+  );
 
   // Perform the raycast
   const intersects = raycaster.intersectObjects(scene.children, true);
