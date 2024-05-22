@@ -37,33 +37,49 @@ function handleCollisions(player, maze) {
     }
   });
 
+  let collisionDetected = false;
+
   // Check for intersections between player and maze walls
   for (const mazeBoundingBox of mazeBoundingBoxes) {
     // Ensure mazeBoundingBox is defined and not null
     if (mazeBoundingBox && mazeBoundingBox.min && mazeBoundingBox.max) {
       if (playerBoundingBox.intersectsBox(mazeBoundingBox)) {
-        // Collision detected, determine collision direction
-        const playerPosition = player.mesh.position.clone();
-        const collisionDirection = new THREE.Vector3();
+        // Collision detected
+        collisionDetected = true;
 
-        // Ensure mazeBoundingBox's min and max are defined and not null
-        if (mazeBoundingBox.min && mazeBoundingBox.max) {
-          const center = new THREE.Vector3();
-          center
-            .addVectors(mazeBoundingBox.min, mazeBoundingBox.max)
-            .multiplyScalar(0.5);
-          collisionDirection.subVectors(playerPosition, center).normalize();
+        // Calculate the depth of penetration in each axis
+        const overlapX = Math.min(
+          playerBoundingBox.max.x - mazeBoundingBox.min.x,
+          mazeBoundingBox.max.x - playerBoundingBox.min.x
+        );
+        const overlapY = Math.min(
+          playerBoundingBox.max.y - mazeBoundingBox.min.y,
+          mazeBoundingBox.max.y - playerBoundingBox.min.y
+        );
+        const overlapZ = Math.min(
+          playerBoundingBox.max.z - mazeBoundingBox.min.z,
+          mazeBoundingBox.max.z - playerBoundingBox.min.z
+        );
+
+        // Move the player out along the axis with the smallest overlap
+        if (overlapX < overlapY && overlapX < overlapZ) {
+          player.mesh.position.x += playerBoundingBox.min.x < mazeBoundingBox.min.x ? -overlapX : overlapX;
+        } else if (overlapY < overlapX && overlapY < overlapZ) {
+          player.mesh.position.y += playerBoundingBox.min.y < mazeBoundingBox.min.y ? -overlapY : overlapY;
+        } else {
+          player.mesh.position.z += playerBoundingBox.min.z < mazeBoundingBox.min.z ? -overlapZ : overlapZ;
         }
 
-        // Slide the player along the wall surface
-        playerPosition.addScaledVector(collisionDirection, 0.1); // Adjust the sliding speed as needed
-        player.mesh.position.copy(playerPosition);
+        // Update the player's bounding box after moving
+        playerBoundingBox.setFromObject(player.mesh);
 
         // Exit loop after handling the first collision
-        return;
+        break;
       }
     }
   }
+
+  return collisionDetected;
 }
 
 // Define a function to check for collisions

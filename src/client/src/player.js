@@ -2,46 +2,73 @@ import * as THREE from "../../../three/build/three.module.js";
 
 export class Player {
   constructor(id) {
-
     this.climbing = false;
 
-    const group = new THREE.Group();
-    const geometry = new THREE.SphereGeometry(1, 8, 8); // Radio 1, 32 segmentos de ancho, 32 segmentos de alto
-    // Crear un material de un solo color (verde) para la esfera
+    // Main group for visual components
+    this.group = new THREE.Group();
+
+    // Create a sphere to represent the player's body
+    const geometry = new THREE.SphereGeometry(1, 8, 8); // Radius 1, 8 width segments, 8 height segments
     const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
     const body = new THREE.Mesh(geometry, material);
 
-    this.geometry = geometry;
-
-    // Calcular el bounding box de la geometría
+    // Compute bounding sphere and box
     geometry.computeBoundingSphere();
-    this.boundingSphere = geometry.boundingSphere;
     geometry.computeBoundingBox();
-    this.boundingBox = geometry.boundingBox;
 
-    this.material = material;
+    // Add the body to the main group
+    this.group.add(body);
 
-    this.group = group.add(body);
+    // Group for helpers (bounding box, bounding sphere, arrows)
+    this.groupHelper = new THREE.Group();
 
-    // Crear y añadir el BoxHelper para visualizar el bounding box
-    this.boxHelper = new THREE.BoxHelper(body, 0xffff00); // Color amarillo
+    // Create and add the BoxHelper for visualizing the bounding box
+    this.boxHelper = new THREE.BoxHelper(body, 0xffff00); // Yellow color
+    this.groupHelper.add(this.boxHelper);
 
-    this.group.add(this.boxHelper);
-
-    // Crear el bounding sphere
+    // Create the bounding sphere helper
     const boundingSphereGeometry = new THREE.SphereGeometry(geometry.boundingSphere.radius, 16, 16);
-    const boundingSphereMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000, wireframe: true }); // Color rojo para el bounding sphere
+    const boundingSphereMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000, wireframe: true }); // Red color, wireframe
     const boundingSphereMesh = new THREE.Mesh(boundingSphereGeometry, boundingSphereMaterial);
-    this.group.add(boundingSphereMesh);
+    this.groupHelper.add(boundingSphereMesh);
 
-    this.mesh = group;
+    // Create arrow helpers for x, y, z axes
+    const arrowSize = 2; // Length of the arrows
+
+    const xArrowHelper = new THREE.ArrowHelper(
+      new THREE.Vector3(1, 0, 0), // Direction
+      new THREE.Vector3(0, 0, 0), // Origin
+      arrowSize, // Length
+      0xff0000 // Color (red for X axis)
+    );
+    this.groupHelper.add(xArrowHelper);
+
+    const yArrowHelper = new THREE.ArrowHelper(
+      new THREE.Vector3(0, 1, 0), // Direction
+      new THREE.Vector3(0, 0, 0), // Origin
+      arrowSize, // Length
+      0x00ff00 // Color (green for Y axis)
+    );
+    this.groupHelper.add(yArrowHelper);
+
+    const zArrowHelper = new THREE.ArrowHelper(
+      new THREE.Vector3(0, 0, 1), // Direction
+      new THREE.Vector3(0, 0, 0), // Origin
+      arrowSize, // Length
+      0x0000ff // Color (blue for Z axis)
+    );
+    this.groupHelper.add(zArrowHelper);
+
+    // Add both groups to the player mesh
+    this.mesh = new THREE.Group();
+    this.mesh.add(this.group);
+    this.mesh.add(this.groupHelper);
+
+    // Set initial position
     this.mesh.position.set(-95, 0.5, -95);
 
-    if (id == null) {
-      this.id = Math.floor(Math.random() * 100);
-    } else {
-      this.id = id;
-    }
+    // Assign an ID to the player
+    this.id = id == null ? Math.floor(Math.random() * 100) : id;
     this.mesh.name = id;
   }
 
@@ -67,17 +94,7 @@ export class Player {
   }
 
   getBoundingBox() {
-    return this.boundingBox;
-  }
-
-  logBoundingBoxSize() {
-    if (this.boundingBox) {
-      const size = new THREE.Vector3();
-      this.boundingBox.getSize(size);
-      console.log(`Bounding box size: ${size.x}, ${size.y}, ${size.z}`);
-    } else {
-      console.log("Bounding box not computed.");
-    }
+    return this.geometry.boundingBox;
   }
 
   updateBoxHelper() {
@@ -86,9 +103,7 @@ export class Player {
 }
 
 const p = new Player();
-p.logBoundingBoxSize();
 
 const enemies = new Set();
 
 export { p, enemies };
-
