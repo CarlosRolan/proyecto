@@ -13,12 +13,7 @@ let lastMouseX = null;
 let cameraRotation = 0;
 let playerRotation = 0;
 
-function calculateNewPos(oldPosition) {
-  // Calculamos las posiciones candidatas del jugador
-  let x = oldPosition.x;
-  let y = oldPosition.y;
-  let z = oldPosition.z;
-
+function calculateNewPos({ x, y, z }) {
   if (keys.W) {
     x += moveSpeed * Math.sin(playerRotation);
     z += moveSpeed * Math.cos(playerRotation);
@@ -36,16 +31,7 @@ function calculateNewPos(oldPosition) {
     z += moveSpeed * Math.sin(playerRotation);
   }
 
-  const newPos = { x, y, z };
-
-  return newPos;
-
-  /* Verificamos si el jugador está dentro del suelo
- if (isPlayerOnGround(nextX, nextZ)) {
-   // Movemos al jugador
-   player.position.x = nextX;
-   player.position.z = nextZ;
- }*/
+  return { x, y, z };
 }
 
 function onMouseDown(event) {
@@ -53,10 +39,9 @@ function onMouseDown(event) {
   lastMouseX = event.clientX;
 }
 
-function onMouseUp(event) {
+function onMouseUp() {
   mouseDown = false;
   lastMouseX = null;
-
   playerRotation = cameraRotation;
 }
 
@@ -72,38 +57,19 @@ function getRotation() {
   return playerRotation;
 }
 
-function onKeyDown(event) {
-  switch (event.key.toUpperCase()) {
-    case "W":
-      keys.W = true;
-      break;
-    case "A":
-      keys.A = true;
-      break;
-    case "S":
-      keys.S = true;
-      break;
-    case "D":
-      keys.D = true;
-      break;
+function onKeyChange(event, isPressed) {
+  const key = event.key.toUpperCase();
+  if (keys.hasOwnProperty(key)) {
+    keys[key] = isPressed;
   }
 }
 
+function onKeyDown(event) {
+  onKeyChange(event, true);
+}
+
 function onKeyUp(event) {
-  switch (event.key.toUpperCase()) {
-    case "W":
-      keys.W = false;
-      break;
-    case "A":
-      keys.A = false;
-      break;
-    case "S":
-      keys.S = false;
-      break;
-    case "D":
-      keys.D = false;
-      break;
-  }
+  onKeyChange(event, false);
 }
 
 const keyEvents = { onKeyDown, onKeyUp };
