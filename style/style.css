@@ -23,9 +23,11 @@ canvas {
   left: 50%;
   transform: translate(-50%, -50%);
   font-size: 4em;
-  color: white;
-  display: none; /* Hide the message initially */
-  z-index: 10000; /* Ensure the message is on top of the overlay */
+  color: red;
+  display: none;
+  /* Hide the message initially */
+  z-index: 10000;
+  /* Ensure the message is on top of the overlay */
 }
 
 #blackOverlay {
@@ -35,8 +37,65 @@ canvas {
   width: 100%;
   height: 100%;
   background-color: black;
-  opacity: 0; /* Initially transparent */
-  pointer-events: none; /* Allow interaction with elements behind the overlay */
-  z-index: 9999; /* Ensure the overlay is behind the message */
-  transition: opacity 1s; /* Add transition effect */
+  opacity: 0;
+  /* Initially transparent */
+  pointer-events: none;
+  /* Allow interaction with elements behind the overlay */
+  z-index: 9999;
+  /* Ensure the overlay is behind the message */
+  transition: opacity 1s;
+  /* Add transition effect */
+}
+
+.background {
+  position: relative;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  /* Ensure background is behind overlay */
+}
+
+
+#menu {
+  font-family: Arial, sans-serif;
+  justify-content: center;
+  align-items: center;
+  background-color: #f0f0f0;
+  z-index: 2;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  z-index: 2;
+  /* Ensure overlay is in front of background */
+}
+
+h1 {
+  font-size: 2em;
+  margin-bottom: 20px;
+}
+
+label {
+  display: block;
+  margin-bottom: 10px;
+}
+
+button {
+  padding: 10px 20px;
+  font-size: 1em;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+button:hover {
+  background-color: #0056b3;
 }

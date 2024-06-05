@@ -8,7 +8,7 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(window.devicePixelRatio);
 
 // Append the renderer to the document body or a specific HTML element
-document.body.appendChild(renderer.domElement);
+//document.body.appendChild(renderer.domElement);
 
 // Function to handle window resize
 const onWindowResize = () => {
