@@ -38,9 +38,9 @@ function animate() {
 // ======== UPDATE METHODS =====/
 function updateCamera() {
   camera.position.set(
-    p.mesh.position.x - 10 * Math.sin(cameraRotation),
+    p.mesh.position.x - 5 * Math.sin(cameraRotation),
     camera.position.y,
-    p.mesh.position.z - 10 * Math.cos(cameraRotation)
+    p.mesh.position.z - 5 * Math.cos(cameraRotation)
   );
   camera.lookAt(p.mesh.position);
 }

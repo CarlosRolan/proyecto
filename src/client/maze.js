@@ -52,31 +52,31 @@ function generateMaze(width, height) {
 }
 
 // Example of generating a maze with different dimensions
-const width = 71; // Must be an odd number
-const height = 13; // Must be an odd number
+const width = 101; // Must be an odd number
+const height = 101; // Must be an odd number
 const mazeData = generateMaze(width, height);
 
 // Cell size of the maze
-const cellSize = 1;
+const cellSize = 2;
 const halfCellSize = cellSize / 2;
 
 function initMaze() {
   const mazeGroup = new THREE.Group();
   const wallGeometry = new THREE.BoxGeometry(cellSize, cellSize, cellSize);
-  
+
   // Load the bush texture
   const textureLoader = new THREE.TextureLoader();
   const bushTexture = textureLoader.load('res/img/texture_maze.jpg'); // Replace with your texture file path
   const wallMaterial = new THREE.MeshBasicMaterial({ map: bushTexture });
 
-  const offsetX = (mazeData.length / 2) * cellSize;
+  const offsetX = (mazeData[0].length / 2) * cellSize; // Adjusted for maze width
   const offsetZ = (mazeData.length / 2) * cellSize;
 
   for (let i = 0; i < mazeData.length; i++) {
     for (let j = 0; j < mazeData[i].length; j++) {
       if (mazeData[i][j] === 1) {
         const wall = new THREE.Mesh(wallGeometry, wallMaterial);
-        wall.position.set(j * cellSize - offsetX + halfCellSize, 0, i * cellSize - offsetZ + halfCellSize);
+        wall.position.set(j * cellSize - offsetX + halfCellSize, 1, i * cellSize - offsetZ + halfCellSize);
         mazeGroup.add(wall);
       }
     }
@@ -84,6 +84,7 @@ function initMaze() {
 
   return mazeGroup;
 }
+
 
 console.log(mazeData);
 

@@ -1,7 +1,7 @@
 import * as THREE from "../../three/build/three.module.js";
 
 // Define camera parameters
-const FOV = 75;
+const FOV = 50;
 const ASPECT_RATIO = window.innerWidth / window.innerHeight;
 const NEAR_PLANE = 0.1;
 const FAR_PLANE = 1000;
@@ -39,8 +39,6 @@ function moveCameraAround() {
 
  const x = centerX + radius * Math.cos(time) + r3;
  const z = centerZ + radius * Math.sin(time) + r3;
-
- console.log(r1);
 
  menuCamera.position.set(x, 100, z); // Adjust the y-coordinate to set the camera above the map
  menuCamera.lookAt(centerX, 0, centerZ); // Look at the center of the map

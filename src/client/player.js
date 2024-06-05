@@ -1,7 +1,7 @@
 import * as THREE from "../../three/build/three.module.js";
 
 // Reusable geometries and materials
-const bodyGeometry = new THREE.SphereGeometry(1, 8, 8);
+const bodyGeometry = new THREE.SphereGeometry(0.5, 8, 8);
 const bodyMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
 bodyGeometry.computeBoundingSphere();
 bodyGeometry.computeBoundingBox();
