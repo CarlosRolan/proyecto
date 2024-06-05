@@ -47,7 +47,7 @@ class Player {
 
     directions.forEach(({ dir, color }) => {
       const arrowHelper = new THREE.ArrowHelper(dir, new THREE.Vector3(0, 0, 0), ARROW_SIZE, color);
-      this.groupHelper.add(arrowHelper);
+      //this.groupHelper.add(arrowHelper);
     });
 
     // Add both groups to the player mesh
@@ -56,7 +56,7 @@ class Player {
     this.mesh.add(this.groupHelper);
 
     // Set initial position
-    this.mesh.position.set(-95, 0.5, -95);
+    this.mesh.position.set(-95, 1, -95);
 
     // Assign an ID to the player
     this.id = id == null ? Math.floor(Math.random() * 100) : id;

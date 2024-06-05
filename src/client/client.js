@@ -37,6 +37,26 @@ function sendPosition(position) {
   const msg = new Msg(ACTION_NEW_POS, position);
   sendMessage(msg);
 }
+function handlePlayerWin() {
+  // Show the "YOU WIN" message
+  const youWinMessage = document.getElementById("youWinMessage");
+  youWinMessage.style.display = "block";
+
+  // Fade the screen to black
+  const blackOverlay = document.getElementById("blackOverlay");
+  blackOverlay.style.opacity = "1";
+
+  // Optionally, add a delay before transitioning to the next screen or resetting the game
+  setTimeout(() => {
+    window.location.reload();
+  }, 3000); // Adjust the delay time as needed
+}
+
+function win(player) {
+  const {id} = player;
+  console.log(id);
+  handlePlayerWin();
+}
 
 function sendMessage(msg) {
   if (ws.readyState === ws.OPEN) {
@@ -93,4 +113,4 @@ function updateEnemyPosition(id, position, rotation) {
   updateEnemies(enemies);
 }
 
-export { sendPosition };
+export { sendPosition, win };

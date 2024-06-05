@@ -1,27 +1,65 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Main Menu</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #f0f0f0;
+        }
 
-    <link rel="stylesheet" href="style/dist/style.css">
-    <title>Pilla Pilla</title>
+        #menu {
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 2em;
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 1em;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
 </head>
-
 <body>
-    <div id="infoPanel" class="infoPanel">
-        <div id ="idLb"></div>
-        <div id ="posLb"></div>
+    <div id="menu">
+        <h1>Game Title</h1>
+        <label>Author: Your Name</label>
+        <button onclick="enterGame()">Enter Game</button>
     </div>
 
-    <div id="canvas" class="canvas">
+    <script type="module" src="./src/client/menuBackground.js"></script>
 
-    </div>
-
-    <!-- <script src="dist/bundle.js"></script> -->
-    <script type="module" src="./src/client/index.js"></script>
-
+    <script>
+        function enterGame() {
+            // Redirect to the game page or perform any necessary actions to start the game
+            window.location.href = "game.html";
+        }
+    </script>
 </body>
-
 </html>
