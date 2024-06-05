@@ -1,2 +1,1 @@
-cd \src;
-node server.mjs
+node src/server/server.mjs

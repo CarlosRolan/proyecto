@@ -5,9 +5,10 @@ import Msg, {
   ACTION_NEW_PLAYER,
   ACTION_NEW_POS,
   ACTION_REGISTER,
+  ACTION_MSG
 } from "../msg.mjs";
 
-const ws = new WebSocket("ws://192.168.1.63:5500");
+const ws = new WebSocket("ws://localhost:5500");
 
 // Handle WebSocket events
 ws.onopen = function () {
@@ -70,11 +71,18 @@ function handleServerResponse(serverMsg) {
 }
 
 function updateEnemyPosition(id, position, rotation) {
-  let existingEnemy = enemies.find((enemy) => enemy.id === id);
+  let existingEnemy = false;
+
+  enemies.forEach(e => {
+    if (e.id == id) {
+      e.move(position.x, position.y, position.z);
+      e.rotate(rotation);
+      return;
+    }
+  });
 
   if (existingEnemy) {
-    existingEnemy.move(position.x, position.y, position.z);
-    existingEnemy.rotate(rotation);
+
   } else {
     const newEnemy = new Player(id);
     newEnemy.move(position.x, position.y, position.z);

@@ -4,6 +4,7 @@ import Msg, {
   ACTION_NEW_PLAYER,
   ACTION_NEW_POS,
   ACTION_REGISTER,
+  ACTION_MSG
 } from "../msg.mjs";
 
 const wss = new WebSocketServer({ port: 5500 });
@@ -12,16 +13,19 @@ const playerIds = new Set();
 
 function listenConnections() {
   wss.on("connection", function connection(ws) {
+    console.log("onConnection");
     ws.id = generateId();
     playerIds.add(ws.id);
 
     broadcastExcept(ws, new Msg(ACTION_NEW_PLAYER, "NEW PLAYER [" + ws.id + "]"));
 
     ws.on("message", function incoming(message) {
+      console.log("onMessage");
       handleClientMsg(JSON.parse(message), ws);
     });
 
     ws.on("close", function close() {
+      console.log("onClose");
       handleClientExit(ws);
     });
   });
@@ -37,6 +41,8 @@ function generateId() {
 
 function handleClientMsg(message, ws) {
   const { ACTION, CONTENT } = message;
+
+  console.log(message);
 
   switch (ACTION) {
     case ACTION_REGISTER:
@@ -60,8 +66,13 @@ function handleNewPlayer(playerId, ws) {
 
 function handleNewPosition(content) {
   const { id } = content;
+  const msg = new Msg(ACTION_NEW_POS, content)
   if (playerIds.has(id)) {
-    broadcast(new Msg(ACTION_NEW_POS, content));
+    wss.clients.forEach(function each(client) {
+      if (client.id != id) {
+        client.send(msg.pack());
+      }
+    });
   }
 }
 
@@ -72,9 +83,10 @@ function handleClientExit(ws) {
   }
 }
 
-function broadcast(message) {
+function broadcast(content) {
+  const msg = new Msg(ACTION_NEW_POS, content)
   wss.clients.forEach(function each(client) {
-    client.send(message.pack());
+    client.send(msg.pack());
   });
 }
 

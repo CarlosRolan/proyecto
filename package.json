@@ -1,19 +1,19 @@
 {
   "name": "proyecto",
   "version": "1.0.0",
-  "main": "/src/client/src/index.js",
+  "description": "**Nombre del Autor**: Carlos Rolán Díaz   **Fecha**: 20/04/2024",
+  "main": "src/server/server.mjs",
+  "type": "module",
+  "directories": {
+    "doc": "doc"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
+  "author": "Carlos Rolan Diaz",
   "license": "ISC",
-  "description": "",
   "dependencies": {
-    "three": "^0.164.1",
     "ws": "^8.17.0"
-  },
-  "devDependencies": {
-    "@types/three": "^0.164.0",
-    "@types/ws": "^8.5.10"
   }
+  
 }
