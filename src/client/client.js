@@ -48,7 +48,7 @@ function handlePlayerWin() {
 
   // Optionally, add a delay before transitioning to the next screen or resetting the game
   setTimeout(() => {
-    window.location.reload();
+    window.location = "index.html";
   }, 3000); // Adjust the delay time as needed
 }
 

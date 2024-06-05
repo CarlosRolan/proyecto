@@ -1,13 +1,13 @@
 import * as THREE from "../../three/build/three.module.js";
 import { enemies, p } from "./player.js";
-import { spotLight } from "./light.js";
 import { camera } from "./camera.js";
 import { maze } from "./maze.js";
-import { ground, star, rotateStar } from "./ground.js";
+import { ground } from "./ground.js";
+import { star, rotateStar } from "./start.js";
 import {
   mouseEvents,
   keyEvents,
-  playerActions,
+  calculateNewPos, getRotation,
   cameraRotation,
 } from "./controls.js";
 import { renderer } from "./renderer.js";
@@ -15,7 +15,7 @@ import { sendPosition, win } from "./client.js";
 
 const GRAVITY_ACCELERATION = 9.8;
 const scene = new THREE.Scene();
-scene.add(maze, p.mesh, ground, spotLight, spotLight.target, star);
+scene.add(maze, p.mesh, ground, star);
 
 const playerBoundingBox = new THREE.Box3();
 const mazeBoundingBoxes = [];
@@ -46,8 +46,8 @@ function updateCamera() {
 }
 
 function updatePlayer() {
-  const newPos = playerActions.calculateNewPos(p.mesh.position);
-  const newRotation = playerActions.getRotation();
+  const newPos = calculateNewPos(p.mesh.position, p.speed);
+  const newRotation = getRotation();
 
   if (newPos.x !== p.mesh.position.x || newPos.y !== p.mesh.position.y || newPos.z !== p.mesh.position.z || newRotation !== p.mesh.rotation.y) {
     p.rotate(newRotation);
@@ -121,7 +121,7 @@ function handleCollisions(player) {
   playerBoundingBox.setFromObject(player.mesh);
   for (const mazeBoundingBox of mazeBoundingBoxes) {
     if (playerBoundingBox.intersectsBox(mazeBoundingBox)) {
-      const overlap = {
+      /*const overlap = {
         x: Math.min(playerBoundingBox.max.x - mazeBoundingBox.min.x, mazeBoundingBox.max.x - playerBoundingBox.min.x),
         y: Math.min(playerBoundingBox.max.y - mazeBoundingBox.min.y, mazeBoundingBox.max.y - playerBoundingBox.min.y),
         z: Math.min(playerBoundingBox.max.z - mazeBoundingBox.min.z, mazeBoundingBox.max.z - playerBoundingBox.min.z),
@@ -135,8 +135,11 @@ function handleCollisions(player) {
         player.mesh.position.z += playerBoundingBox.min.z < mazeBoundingBox.min.z ? -overlap.z : overlap.z;
       }
 
-      playerBoundingBox.setFromObject(player.mesh);
+      playerBoundingBox.setFromObject(player.mesh);*/
+      player.speed = 0.05;
       break;
+    } else {
+      player.speed = 0.1;
     }
   }
 }

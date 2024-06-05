@@ -1,5 +1,3 @@
-// Control de teclado para mover al jugador
-const moveSpeed = 0.1;
 const keys = {
   W: false,
   A: false,
@@ -13,22 +11,22 @@ let lastMouseX = null;
 let cameraRotation = 0;
 let playerRotation = 0;
 
-function calculateNewPos({ x, y, z }) {
+function calculateNewPos({ x, y, z }, speed) {
   if (keys.W) {
-    x += moveSpeed * Math.sin(playerRotation);
-    z += moveSpeed * Math.cos(playerRotation);
+    x += speed * Math.sin(playerRotation);
+    z += speed * Math.cos(playerRotation);
   }
   if (keys.A) {
-    x += moveSpeed * Math.cos(playerRotation);
-    z -= moveSpeed * Math.sin(playerRotation);
+    x += speed * Math.cos(playerRotation);
+    z -= speed * Math.sin(playerRotation);
   }
   if (keys.S) {
-    x -= moveSpeed * Math.sin(playerRotation);
-    z -= moveSpeed * Math.cos(playerRotation);
+    x -= speed * Math.sin(playerRotation);
+    z -= speed * Math.cos(playerRotation);
   }
   if (keys.D) {
-    x -= moveSpeed * Math.cos(playerRotation);
-    z += moveSpeed * Math.sin(playerRotation);
+    x -= speed * Math.cos(playerRotation);
+    z += speed * Math.sin(playerRotation);
   }
 
   return { x, y, z };
@@ -74,6 +72,5 @@ function onKeyUp(event) {
 
 const keyEvents = { onKeyDown, onKeyUp };
 const mouseEvents = { onMouseDown, onMouseUp, onMouseMove };
-const playerActions = { calculateNewPos, getRotation };
 
-export { keyEvents, mouseEvents, playerActions, cameraRotation };
+export { keyEvents, mouseEvents, calculateNewPos, getRotation , cameraRotation };
