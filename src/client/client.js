@@ -1,7 +1,10 @@
 import { Player, p, enemies } from "./player.js";
 import { updateEnemies, deleteEnemy } from "./scene.js";
 import Msg, {
-  ACTIONS
+  ACTION_EXIT,
+  ACTION_NEW_PLAYER,
+  ACTION_NEW_POS,
+  ACTION_REGISTER,
 } from "../msg.mjs";
 
 const ws = new WebSocket("ws://192.168.1.63:5500");
@@ -25,12 +28,12 @@ ws.onclose = function () {
 };
 
 function registerPlayer() {
-  const msg = new Msg(ACTIONS.ACTION_REGISTER, p.id);
+  const msg = new Msg(ACTION_REGISTER, p.id);
   sendMessage(msg);
 }
 
 function sendPosition(position) {
-  const msg = new Msg(ACTIONS.ACTION_NEW_POS, position);
+  const msg = new Msg(ACTION_NEW_POS, position);
   sendMessage(msg);
 }
 
@@ -45,16 +48,16 @@ function handleServerResponse(serverMsg) {
   const { ACTION, CONTENT } = serverMsg;
 
   switch (ACTION) {
-    case ACTIONS.ACTION_MSG:
+    case ACTION_MSG:
       console.log(CONTENT);
       break;
 
-    case ACTIONS.ACTION_EXIT:
+    case ACTION_EXIT:
       console.log("Deleting a player");
       deleteEnemy(CONTENT);
       break;
 
-    case ACTIONS.ACTION_NEW_POS:
+    case ACTION_NEW_POS:
       console.log("Updating enemy position");
       const { id, position, rotation } = CONTENT;
       updateEnemyPosition(id, position, rotation);
