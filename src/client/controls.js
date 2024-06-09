@@ -70,7 +70,20 @@ function onKeyUp(event) {
   onKeyChange(event, false);
 }
 
+function onMouseScroll(camera) {
+  console.log("onScroll");
+  camera.position.set(x, camera.position.y++, z); // Adjust the y-coordinate to set the camera above the map
+}
+
+// Function to handle space key press
+function onSpacePress(event, player) {
+  if (event.code === 'Space') {
+    console.log('Space key pressed!');
+    player.mesh.position.y++;
+  }
+}
+
 const keyEvents = { onKeyDown, onKeyUp };
-const mouseEvents = { onMouseDown, onMouseUp, onMouseMove };
+const mouseEvents = { onMouseDown, onMouseUp, onMouseMove, onMouseScroll, onSpacePress };
 
 export { keyEvents, mouseEvents, calculateNewPos, getRotation , cameraRotation };

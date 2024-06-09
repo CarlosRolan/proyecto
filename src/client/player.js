@@ -56,13 +56,15 @@ class Player {
     this.mesh.add(this.groupHelper);
 
     // Set initial position
-    this.mesh.position.set(-95, 15, -95);
+    //this.mesh.position.set(-95, 15, -95);
 
     // Assign an ID to the player
     this.id = id == null ? Math.floor(Math.random() * 100) : id;
     this.mesh.name = this.id; // Corrected to use this.id
 
     this.speed = 0.1;
+
+    this.readyToStart = false;
   }
 
   isClimbing() {
@@ -92,6 +94,10 @@ class Player {
 
   updateBoxHelper() {
     this.boxHelper.update();
+  }
+
+  readyToStart() {
+    this.ready = true;
   }
 }
 

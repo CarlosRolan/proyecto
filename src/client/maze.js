@@ -1,6 +1,36 @@
 import * as THREE from "../../three/build/three.module.js";
 
-function generateMaze(width, height) {
+// Cell size of the maze
+const cellSize = 2;
+const halfCellSize = cellSize / 2;
+const mazeData = generateMazeData(25, 25);
+
+const mazeDataStatic = [
+  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1],
+  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1],
+  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1],
+  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1],
+  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1],
+  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1],
+  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1],
+  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1],
+  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1],
+  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1],
+  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1],
+  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1],
+  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1],
+  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1],
+  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1],
+  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1],
+  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1],
+];
+
+console.log(mazeData);
+
+
+function generateMazeData(width, height) {
   if (width % 2 === 0 || height % 2 === 0) {
     throw new Error("Width and height must be odd numbers");
   }
@@ -50,17 +80,7 @@ function generateMaze(width, height) {
 
   return mazeData;
 }
-
-// Example of generating a maze with different dimensions
-const width = 101; // Must be an odd number
-const height = 101; // Must be an odd number
-const mazeData = generateMaze(width, height);
-
-// Cell size of the maze
-const cellSize = 2;
-const halfCellSize = cellSize / 2;
-
-function initMaze() {
+function initMaze(mazeData) {
   const mazeGroup = new THREE.Group();
   const wallGeometry = new THREE.BoxGeometry(cellSize, cellSize, cellSize);
 
@@ -86,8 +106,15 @@ function initMaze() {
 }
 
 
-console.log(mazeData);
-
-const maze = initMaze();
+const maze = initMaze(mazeDataStatic);
+const mazeBoundingBoxes = [];
+maze.traverse((child) => {
+  if (child.isMesh) {
+    mazeBoundingBoxes.push(new THREE.Box3().setFromObject(child));
+  }
+});
+maze.mazeBoundingBoxes = mazeBoundingBoxes;
+maze.cellSize = cellSize;
+maze.mazeData = mazeData;
 
 export { maze };

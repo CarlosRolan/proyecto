@@ -1,7 +1,7 @@
 import * as THREE from "../../three/build/three.module.js";
 
 // Initialize the ground directly
-const groundGeometry = new THREE.PlaneGeometry(200, 200, 10, 10);
+const groundGeometry = new THREE.PlaneGeometry(50, 50, 10, 10);
 
 // Load the texture
 const textureLoader = new THREE.TextureLoader();

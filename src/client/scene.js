@@ -1,6 +1,6 @@
 import * as THREE from "../../three/build/three.module.js";
 import { enemies, p } from "./player.js";
-import { camera } from "./camera.js";
+import { playerCamera } from "./camera.js";
 import { maze } from "./maze.js";
 import { ground } from "./ground.js";
 import { star, rotateStar } from "./start.js";
@@ -12,19 +12,27 @@ import {
 } from "./controls.js";
 import { renderer } from "./renderer.js";
 import { sendPosition, win } from "./client.js";
+import { listener, mazeCollisionSound, walkSound, winningSound } from "./audioLoader.js";
 
-const GRAVITY_ACCELERATION = 9.8;
-const scene = new THREE.Scene();
-scene.add(maze, p.mesh, ground, star);
+
+const cellSize = maze.cellSize;
+const halfCellSize = cellSize / 2;
 
 const playerBoundingBox = new THREE.Box3();
-const mazeBoundingBoxes = [];
 
-maze.traverse((child) => {
-  if (child.isMesh) {
-    mazeBoundingBoxes.push(new THREE.Box3().setFromObject(child));
-  }
-});
+const mazeData = maze.mazeData;
+const mazeBoundingBoxes = maze.mazeBoundingBoxes;
+
+const scene = new THREE.Scene();
+
+const [starX, starY] = findValidPosition();
+star.position.set(starX * cellSize - mazeData[0].length / 2 * cellSize + halfCellSize, 1, starY * cellSize - mazeData.length / 2 * cellSize + halfCellSize);
+// Position the player at the entrance
+p.mesh.position.set(1 * cellSize - mazeData[0].length / 2 * cellSize + halfCellSize, 1, 0 * cellSize - mazeData.length / 2 * cellSize + halfCellSize);
+
+playerCamera.add(listener);
+
+scene.add(maze, p.mesh, ground, star);
 
 // Main render method
 function animate() {
@@ -32,42 +40,54 @@ function animate() {
   updatePlayer();
   updateCamera();
   rotateStar();
-  renderer.render(scene, camera);
+  renderer.render(scene, playerCamera);
 }
 
 // ======== UPDATE METHODS =====/
 function updateCamera() {
-  camera.position.set(
+  playerCamera.position.set(
     p.mesh.position.x - 5 * Math.sin(cameraRotation),
-    camera.position.y,
+    playerCamera.position.y,
     p.mesh.position.z - 5 * Math.cos(cameraRotation)
   );
-  camera.lookAt(p.mesh.position);
+  playerCamera.lookAt(p.mesh.position);
 }
 
 function updatePlayer() {
+  const currentPosition = p.mesh.position.clone();
   const newPos = calculateNewPos(p.mesh.position, p.speed);
   const newRotation = getRotation();
 
-  if (newPos.x !== p.mesh.position.x || newPos.y !== p.mesh.position.y || newPos.z !== p.mesh.position.z || newRotation !== p.mesh.rotation.y) {
+  if (!currentPosition.equals(newPos)) {
+
     p.rotate(newRotation);
-    const currentPosition = p.mesh.position.clone();
     p.move(newPos.x, newPos.y, newPos.z);
 
-    handleCollisions(p);
+    handleMazeCollisions(p);
     handleSimplePlayerCollisions(p);
     handlePlayerStarCollision(p);
 
-    if (!currentPosition.equals(p.mesh.position)) {
-      sendPosition({ id: p.id, position: p.mesh.position, rotation: p.mesh.rotation.y });
+    // Play walking sound
+    if (!walkSound.isPlaying) {
+      walkSound.play();
     }
 
+    sendPosition({ id: p.id, position: p.mesh.position, rotation: p.mesh.rotation.y });
+
     document.getElementById("posLb").innerHTML = JSON.stringify(p.getCurrentPos());
+
+  } else {
+
+    // Play walking sound
+    if (walkSound.isPlaying) {
+      walkSound.stop();
+    }
   }
 
-  if (p.mesh.position.y > 0.5 && !p.climbing) {
+
+  /*if (p.mesh.position.y > 0.5 && !p.climbing) {
     p.mesh.position.y -= 0.1;
-  }
+  }*/
 }
 
 function updateEnemies(enemies) {
@@ -100,47 +120,21 @@ function isPlayerOnGround(player, scene) {
   return intersects.length > 0;
 }
 
-function handleVerticalCollisions(player) {
+function handleMazeCollisions(player) {
   playerBoundingBox.setFromObject(player.mesh);
   for (const mazeBoundingBox of mazeBoundingBoxes) {
     if (playerBoundingBox.intersectsBox(mazeBoundingBox)) {
-      player.climbing = true;
-      const playerUpDirection = new THREE.Vector3(0, 1, 0);
-      const wallNormal = mazeBoundingBox.getNormal(new THREE.Vector3());
-      const angle = playerUpDirection.angleTo(wallNormal);
-      if (angle > MAX_CLIMB_ANGLE) {
-        p.mesh.position.y = Math.max(p.mesh.position.y, mazeBoundingBox.max.y + playerBoundingBox.getSize(new THREE.Vector3()).y / 2);
+
+      if (!mazeCollisionSound.isPlaying) {
+        mazeCollisionSound.play();
       }
-    } else {
-      player.climbing = false;
+      player.speed = 0.02;
+      return;
     }
   }
-}
-
-function handleCollisions(player) {
-  playerBoundingBox.setFromObject(player.mesh);
-  for (const mazeBoundingBox of mazeBoundingBoxes) {
-    if (playerBoundingBox.intersectsBox(mazeBoundingBox)) {
-      /*const overlap = {
-        x: Math.min(playerBoundingBox.max.x - mazeBoundingBox.min.x, mazeBoundingBox.max.x - playerBoundingBox.min.x),
-        y: Math.min(playerBoundingBox.max.y - mazeBoundingBox.min.y, mazeBoundingBox.max.y - playerBoundingBox.min.y),
-        z: Math.min(playerBoundingBox.max.z - mazeBoundingBox.min.z, mazeBoundingBox.max.z - playerBoundingBox.min.z),
-      };
-
-      if (overlap.x < overlap.y && overlap.x < overlap.z) {
-        player.mesh.position.x += playerBoundingBox.min.x < mazeBoundingBox.min.x ? -overlap.x : overlap.x;
-      } else if (overlap.y < overlap.x && overlap.y < overlap.z) {
-        player.mesh.position.y += playerBoundingBox.min.y < mazeBoundingBox.min.y ? -overlap.y : overlap.y;
-      } else {
-        player.mesh.position.z += playerBoundingBox.min.z < mazeBoundingBox.min.z ? -overlap.z : overlap.z;
-      }
-
-      playerBoundingBox.setFromObject(player.mesh);*/
-      player.speed = 0.05;
-      break;
-    } else {
-      player.speed = 0.1;
-    }
+  player.speed = 0.1;
+  if (mazeCollisionSound.isPlaying) {
+    mazeCollisionSound.stop();
   }
 }
 
@@ -169,6 +163,65 @@ function handleSimplePlayerCollisions(player) {
   });
 }
 
+function handlePlayerStarCollision(player) {
+  const playerBoundingBox = new THREE.Box3().setFromObject(player.mesh);
+  star.geometry.computeBoundingBox();
+  const startBoundingBox = new THREE.Box3().setFromObject(star);
+
+  if (playerBoundingBox.intersectsBox(startBoundingBox)) {
+    win(player);
+    winningSound.play();
+    scene.remove(maze, player, ground);
+    return;
+  }
+}
+// Function to find a valid position in the maze
+function findValidPosition() {
+  const height = mazeData.length;
+  const width = mazeData[0].length;
+  const centerX = Math.floor(width / 2);
+  const centerY = Math.floor(height / 2);
+
+  if (mazeData[centerY][centerX] === 0) {
+    return [centerX, centerY];
+  }
+
+  // Find the nearest open cell to the center
+  const directions = [
+    [0, 1], [1, 0], [0, -1], [-1, 0]
+  ];
+  for (let radius = 1; radius < Math.max(width, height); radius++) {
+    for (let [dx, dy] of directions) {
+      let nx = centerX + dx * radius;
+      let ny = centerY + dy * radius;
+      if (nx >= 0 && ny >= 0 && nx < width && ny < height && mazeData[ny][nx] === 0) {
+        return [nx, ny];
+      }
+    }
+  }
+  return [centerX, centerY]; // Fallback
+}
+
+window.addEventListener("scroll", function (e) {
+  console.log("Scrolll");
+  playerCamera.position.y++; // Adjust the y-coordinate to set the camera above the map
+  e.preventDefault();
+}, false);
+// Add event listener for keydown event
+window.addEventListener('keydown', (e) => {
+  mouseEvents.onSpacePress(e, p);
+}, false);
+window.addEventListener("mousedown", mouseEvents.onMouseDown, true);
+window.addEventListener("mouseup", mouseEvents.onMouseUp, false);
+window.addEventListener("mousemove", mouseEvents.onMouseMove, true);
+window.addEventListener("keydown", keyEvents.onKeyDown, false);
+window.addEventListener("keyup", keyEvents.onKeyUp, false);
+
+document.getElementById("canvas").appendChild(renderer.domElement);
+
+export { animate, updateEnemies, deleteEnemy, addEnemy };
+
+/*
 function handlePlayerCollisions(player, newPos) {
   playerBoundingBox.setFromObject(player.mesh);
   enemies.forEach(enemy => {
@@ -241,28 +294,4 @@ function handlePlayerCollisions(player, newPos) {
     }
   });
 }
-
-function handlePlayerStarCollision(player) {
-  const playerBoundingBox = new THREE.Box3().setFromObject(player.mesh);
-  star.geometry.computeBoundingBox();
-  const startBoundingBox = new THREE.Box3().setFromObject(star);
-  const starPosition = star.position.clone();
-  const playerPosition = player.mesh.position.clone();
-
-  if (playerBoundingBox.intersectsBox(startBoundingBox)) {
-    win(player);
-  }
-}
-
-
-
-
-window.addEventListener("mousedown", mouseEvents.onMouseDown, true);
-window.addEventListener("mouseup", mouseEvents.onMouseUp, false);
-window.addEventListener("mousemove", mouseEvents.onMouseMove, true);
-window.addEventListener("keydown", keyEvents.onKeyDown, false);
-window.addEventListener("keyup", keyEvents.onKeyUp, false);
-
-document.getElementById("canvas").appendChild(renderer.domElement);
-
-export { animate, updateEnemies, deleteEnemy, addEnemy };
+*/

@@ -21,7 +21,7 @@ playerCamera.position.copy(CAMERA_POSITION);
 const menuCamera = new THREE.PerspectiveCamera(FOV, ASPECT_RATIO, NEAR_PLANE, FAR_PLANE);
 menuCamera.position.copy(CAMERA_POSITION);
 
-function moveCameraAround() {
+function moveCameraAroundMenu() {
  const radius = 100; // Adjust the radius of the circular motion
  const speed = 0.005; // Adjust the speed of the movement
 
@@ -47,5 +47,4 @@ function moveCameraAround() {
 }
 
 
-
-export { playerCamera as camera, menuCamera, moveCameraAround };
+export { playerCamera, menuCamera, moveCameraAroundMenu };

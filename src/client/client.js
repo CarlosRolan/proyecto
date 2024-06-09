@@ -5,8 +5,15 @@ import Msg, {
   ACTION_NEW_PLAYER,
   ACTION_NEW_POS,
   ACTION_REGISTER,
-  ACTION_MSG
+  ACTION_MSG,
+  ACTION_ASK_MAZE_DATA,
+  ACTION_SEND_MAZE_DATA,
+  ACTION_WIN,
+  ACTION_LOST
 } from "../msg.mjs";
+import { loossingSound } from "./audioLoader.js";
+
+
 
 const ws = new WebSocket("ws://localhost:5500");
 
@@ -37,10 +44,11 @@ function sendPosition(position) {
   const msg = new Msg(ACTION_NEW_POS, position);
   sendMessage(msg);
 }
-function handlePlayerWin() {
+function handleEndGame(text) {
   // Show the "YOU WIN" message
-  const youWinMessage = document.getElementById("youWinMessage");
-  youWinMessage.style.display = "block";
+  const endMsg = document.getElementById("endMsg");
+  endMsg.innerHTML = text;
+  endMsg.style.display = "block";
 
   // Fade the screen to black
   const blackOverlay = document.getElementById("blackOverlay");
@@ -53,9 +61,16 @@ function handlePlayerWin() {
 }
 
 function win(player) {
-  const {id} = player;
+  const { id } = player;
   console.log(id);
-  handlePlayerWin();
+  handleEndGame("WIN");
+  const winMsg = new Msg(ACTION_WIN, player.id);
+  sendMessage(winMsg);
+}
+
+function lost() {
+  handleEndGame("LOST");
+  loossingSound.play();
 }
 
 function sendMessage(msg) {
@@ -69,6 +84,9 @@ function handleServerResponse(serverMsg) {
   const { ACTION, CONTENT } = serverMsg;
 
   switch (ACTION) {
+    case ACTION_SEND_MAZE_DATA:
+      console.log("Getting the map data");
+      break;
     case ACTION_MSG:
       console.log(CONTENT);
       break;
@@ -82,6 +100,12 @@ function handleServerResponse(serverMsg) {
       console.log("Updating enemy position");
       const { id, position, rotation } = CONTENT;
       updateEnemyPosition(id, position, rotation);
+      break;
+
+    case ACTION_LOST:
+      const playerWhoWin = CONTENT;
+      console.log(playerWhoWin);
+      lost();
       break;
 
     default:
@@ -113,4 +137,10 @@ function updateEnemyPosition(id, position, rotation) {
   updateEnemies(enemies);
 }
 
-export { sendPosition, win };
+function askForMazeData() {
+  const msg = new Msg(ACTION_ASK_MAZE_DATA);
+  sendMessage(msg);
+}
+
+
+export { sendPosition, win, lost };

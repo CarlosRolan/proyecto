@@ -20,7 +20,7 @@ const starGeometry = new THREE.ExtrudeGeometry(starShape, extrudeSettings);
 const starMaterial = new THREE.MeshBasicMaterial({ color: 0xffd700 });
 const star = new THREE.Mesh(starGeometry, starMaterial);
 //star.position.set(randomX, 1, randomZ); // Adjust the position to be above the ground
-star.position.set(-90, 1, -90); // Adjust the position to be above the ground
+//star.position.set(-90, 1, -90); // Adjust the position to be above the ground
 star.scale.set(0.5, 0.5, 0.5); // Adjust the scale to make the star smaller
 
 // Make the star rotate and bounce
