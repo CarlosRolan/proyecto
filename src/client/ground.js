@@ -5,7 +5,7 @@ const groundGeometry = new THREE.PlaneGeometry(50, 50, 10, 10);
 
 // Load the texture
 const textureLoader = new THREE.TextureLoader();
-const texture = textureLoader.load('res/img/texture_ground.png'); // Replace 'path_to_your_texture.jpg' with the actual path to your texture file
+const texture = textureLoader.load('res/img/texture_ground.png'); 
 
 // Set the repeat property of the texture
 texture.wrapS = THREE.RepeatWrapping;

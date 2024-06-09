@@ -59,6 +59,7 @@ canvas {
 
 
 #menu {
+  padding: 10px;
   font-family: Arial, sans-serif;
   justify-content: center;
   align-items: center;
@@ -81,12 +82,13 @@ h1 {
 }
 
 label {
+  text-align: center;
   display: block;
   margin-bottom: 10px;
 }
 
 button {
-  padding: 10px 20px;
+  width: 100%;
   font-size: 1em;
   background-color: #007bff;
   color: white;
