@@ -74,8 +74,6 @@ function updatePlayer() {
 
     sendPosition({ id: p.id, position: p.mesh.position, rotation: p.mesh.rotation.y });
 
-    document.getElementById("posLb").innerHTML = JSON.stringify(p.getCurrentPos());
-
   } else {
 
     // Play walking sound
@@ -83,7 +81,6 @@ function updatePlayer() {
       walkSound.stop();
     }
   }
-
 
   /*if (p.mesh.position.y > 0.5 && !p.climbing) {
     p.mesh.position.y -= 0.1;
@@ -205,7 +202,6 @@ function findValidPosition() {
 window.addEventListener("scroll", function (e) {
   console.log("Scrolll");
   playerCamera.position.y++; // Adjust the y-coordinate to set the camera above the map
-  e.preventDefault();
 }, false);
 // Add event listener for keydown event
 window.addEventListener('keydown', (e) => {

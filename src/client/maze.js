@@ -3,7 +3,7 @@ import * as THREE from "../../three/build/three.module.js";
 // Cell size of the maze
 const cellSize = 2;
 const halfCellSize = cellSize / 2;
-const mazeData = generateMazeData(25, 25);
+const mazeData = generateMazeData(51, 51);
 
 const mazeDataStatic = [
   [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
@@ -106,7 +106,7 @@ function initMaze(mazeData) {
 }
 
 
-const maze = initMaze(mazeDataStatic);
+const maze = initMaze(mazeData);
 const mazeBoundingBoxes = [];
 maze.traverse((child) => {
   if (child.isMesh) {

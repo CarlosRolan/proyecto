@@ -14,8 +14,6 @@ El proyecto utiliza una variedad de tecnologías y herramientas para su desarrol
 
 - **HTML/CSS**: Lenguajes de marcado y estilos utilizados para crear la interfaz de usuario del juego y diseñar su apariencia visual.
 
-- **PHP**: Lenguaje de programación utilizado para la generación de contenido dinámico en el servidor.
-
 - **Git**: Sistema de control de versiones utilizado para el seguimiento de cambios en el código fuente y la colaboración entre desarrolladores.
 
 - **Markdown**: Formato de texto ligero utilizado para escribir la documentación del proyecto y otros documentos relacionados.
