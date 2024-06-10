@@ -4,6 +4,7 @@ import * as THREE from "../../three/build/three.module.js";
 const cellSize = 2;
 const halfCellSize = cellSize / 2;
 const mazeData = generateMazeData(51, 51);
+const mazeBoundingBoxes = [];
 
 const mazeDataStatic = [
   [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
@@ -27,7 +28,7 @@ const mazeDataStatic = [
   [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1],
 ];
 
-console.log(mazeData);
+
 
 
 function generateMazeData(width, height) {
@@ -102,6 +103,9 @@ function initMaze(mazeData) {
   const wallTexture = textureLoader.load('res/img/texture_maze_wall.jpg'); // Replace with your texture file path
   const wallMaterial = new THREE.MeshBasicMaterial({ map: wallTexture });
 
+  const debugMaterialWall = new THREE.MeshBasicMaterial({ wireframe: true, color: "#FF0000" });
+  const debugMaterialBush = new THREE.MeshBasicMaterial({ wireframe: true, color: "#00FF00" });
+
   const offsetX = (mazeData[0].length / 2) * cellSize; // Adjusted for maze width
   const offsetZ = (mazeData.length / 2) * cellSize;
 
@@ -111,10 +115,19 @@ function initMaze(mazeData) {
         const bush = new THREE.Mesh(mazeCellGeometry, bushMaterial);
         bush.position.set(j * cellSize - offsetX + halfCellSize, 1, i * cellSize - offsetZ + halfCellSize);
         mazeGroup.add(bush);
+
+        const boundingBox = new THREE.Box3().setFromObject(bush);
+        boundingBox.type = 'bush';
+        mazeBoundingBoxes.push(boundingBox);
+
       } else if (mazeData[i][j] === 2) {
         const wall = new THREE.Mesh(mazeCellGeometry, wallMaterial);
         wall.position.set(j * cellSize - offsetX + halfCellSize, 1, i * cellSize - offsetZ + halfCellSize);
         mazeGroup.add(wall);
+
+        const boundingBox = new THREE.Box3().setFromObject(wall);
+        boundingBox.type = 'wall';
+        mazeBoundingBoxes.push(boundingBox);
       }
     }
   }
@@ -122,14 +135,10 @@ function initMaze(mazeData) {
   return mazeGroup;
 }
 
-
 const maze = initMaze(mazeData);
-const mazeBoundingBoxes = [];
-maze.traverse((child) => {
-  if (child.isMesh) {
-    mazeBoundingBoxes.push(new THREE.Box3().setFromObject(child));
-  }
-});
+
+console.log(maze);
+
 maze.mazeBoundingBoxes = mazeBoundingBoxes;
 maze.cellSize = cellSize;
 maze.mazeData = mazeData;

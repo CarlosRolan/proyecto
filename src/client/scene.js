@@ -34,6 +34,7 @@ playerCamera.add(listener);
 
 scene.add(maze, p.mesh, ground, star);
 
+
 // Main render method
 function animate() {
   requestAnimationFrame(animate);
@@ -118,22 +119,52 @@ function isPlayerOnGround(player, scene) {
 }
 
 function handleMazeCollisions(player) {
-  playerBoundingBox.setFromObject(player.mesh);
-  for (const mazeBoundingBox of mazeBoundingBoxes) {
-    if (playerBoundingBox.intersectsBox(mazeBoundingBox)) {
+  let bushCollisionDetected = false;
+  const playerBoundingBox = new THREE.Box3().setFromObject(player.mesh);
+  let correctionVector = new THREE.Vector3();
 
-      if (!mazeCollisionSound.isPlaying) {
-        mazeCollisionSound.play();
+  for (const mazeBoundingBox of maze.mazeBoundingBoxes) {
+    if (playerBoundingBox.intersectsBox(mazeBoundingBox)) {
+      switch (mazeBoundingBox.type) {
+        case "bush":
+          bushCollisionDetected = true;
+          if (!mazeCollisionSound.isPlaying) {
+            mazeCollisionSound.play();
+          }
+          player.speed = 0.02;
+          break;
+        case "wall":
+          const overlap = {
+            x: Math.min(playerBoundingBox.max.x - mazeBoundingBox.min.x, mazeBoundingBox.max.x - playerBoundingBox.min.x),
+            y: Math.min(playerBoundingBox.max.y - mazeBoundingBox.min.y, mazeBoundingBox.max.y - playerBoundingBox.min.y),
+            z: Math.min(playerBoundingBox.max.z - mazeBoundingBox.min.z, mazeBoundingBox.max.z - playerBoundingBox.min.z),
+          };
+
+          if (overlap.x < overlap.y && overlap.x < overlap.z) {
+            correctionVector.x += playerBoundingBox.min.x < mazeBoundingBox.min.x ? -overlap.x : overlap.x;
+          } else if (overlap.y < overlap.x && overlap.y < overlap.z) {
+            correctionVector.y += playerBoundingBox.min.y < mazeBoundingBox.min.y ? -overlap.y : overlap.y;
+          } else {
+            correctionVector.z += playerBoundingBox.min.z < mazeBoundingBox.min.z ? -overlap.z : overlap.z;
+          }
+          break;
+        default:
+          break;
       }
-      player.speed = 0.02;
-      return;
     }
   }
-  player.speed = 0.1;
-  if (mazeCollisionSound.isPlaying) {
-    mazeCollisionSound.stop();
+
+  player.mesh.position.add(correctionVector);
+
+  if (!bushCollisionDetected) {
+    player.speed = 0.1;
+    if (mazeCollisionSound.isPlaying) {
+      mazeCollisionSound.stop();
+    }
   }
 }
+
+
 
 function handleSimplePlayerCollisions(player) {
   playerBoundingBox.setFromObject(player.mesh);
