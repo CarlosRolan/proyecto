@@ -78,16 +78,29 @@ function generateMazeData(width, height) {
   mazeData[0][1] = 0;  // Entrance
   mazeData[height - 1][width - 2] = 0;  // Exit
 
+  // Add impassable areas marked with "2"
+  for (let i = 0; i < height; i += 4) {
+    for (let j = 0; j < width; j += 3) {
+      if (mazeData[i][j] === 1) {
+        mazeData[i][j] = 2;
+      }
+    }
+  }
+
   return mazeData;
 }
 function initMaze(mazeData) {
   const mazeGroup = new THREE.Group();
-  const wallGeometry = new THREE.BoxGeometry(cellSize, cellSize, cellSize);
+  const mazeCellGeometry = new THREE.BoxGeometry(cellSize, cellSize, cellSize);
 
   // Load the bush texture
   const textureLoader = new THREE.TextureLoader();
+
   const bushTexture = textureLoader.load('res/img/texture_maze.jpg'); // Replace with your texture file path
-  const wallMaterial = new THREE.MeshBasicMaterial({ map: bushTexture });
+  const bushMaterial = new THREE.MeshBasicMaterial({ map: bushTexture });
+
+  const wallTexture = textureLoader.load('res/img/texture_maze_wall.jpg'); // Replace with your texture file path
+  const wallMaterial = new THREE.MeshBasicMaterial({ map: wallTexture });
 
   const offsetX = (mazeData[0].length / 2) * cellSize; // Adjusted for maze width
   const offsetZ = (mazeData.length / 2) * cellSize;
@@ -95,7 +108,11 @@ function initMaze(mazeData) {
   for (let i = 0; i < mazeData.length; i++) {
     for (let j = 0; j < mazeData[i].length; j++) {
       if (mazeData[i][j] === 1) {
-        const wall = new THREE.Mesh(wallGeometry, wallMaterial);
+        const bush = new THREE.Mesh(mazeCellGeometry, bushMaterial);
+        bush.position.set(j * cellSize - offsetX + halfCellSize, 1, i * cellSize - offsetZ + halfCellSize);
+        mazeGroup.add(bush);
+      } else if (mazeData[i][j] === 2) {
+        const wall = new THREE.Mesh(mazeCellGeometry, wallMaterial);
         wall.position.set(j * cellSize - offsetX + halfCellSize, 1, i * cellSize - offsetZ + halfCellSize);
         mazeGroup.add(wall);
       }
