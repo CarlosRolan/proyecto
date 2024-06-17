@@ -1,8 +1,15 @@
 import * as THREE from "../../three/build/three.module.js";
 
+
+
+import { FontLoader, TextGeometry } from "../../three/examples/jsm/Addons.js";
+//import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry.js';
+
+
+
 // Reusable geometries and materials
 const bodyGeometry = new THREE.SphereGeometry(0.5, 8, 8);
-const bodyMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+const bodyMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00, wireframe: true });
 bodyGeometry.computeBoundingSphere();
 bodyGeometry.computeBoundingBox();
 
@@ -51,12 +58,20 @@ class Player {
     });
 
     // Add both groups to the player mesh
+
+    const loader = new FontLoader();
+
     this.mesh = new THREE.Group();
+
+    const font = loader.load('res/font/myFont.json');
+
+    const textGeometry = new TextGeometry('IIDIDIDIDID');
+
+    const textMesh = new THREE.Mesh(textGeometry, boundingSphereGeometry);
+
+    this.mesh.add(textMesh);
     this.mesh.add(this.group);
     this.mesh.add(this.groupHelper);
-
-    // Set initial position
-    //this.mesh.position.set(-95, 15, -95);
 
     // Assign an ID to the player
     this.id = id == null ? Math.floor(Math.random() * 100) : id;
@@ -65,6 +80,10 @@ class Player {
     this.speed = 0.1;
 
     this.readyToStart = false;
+  }
+
+  add(mesh) {
+    this.mesh.add(mesh);
   }
 
   isClimbing() {
@@ -98,6 +117,10 @@ class Player {
 
   readyToStart() {
     this.ready = true;
+  }
+
+  getCurrentRotation() {
+    this.mesh.p
   }
 }
 

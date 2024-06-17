@@ -3,6 +3,7 @@ const keys = {
   A: false,
   S: false,
   D: false,
+  Space: false
 };
 
 // Control de ratón para rotar la cámara alrededor del jugador
@@ -28,6 +29,10 @@ function calculateNewPos({ x, y, z }, speed) {
     x -= speed * Math.cos(playerRotation);
     z += speed * Math.sin(playerRotation);
   }
+  if (keys.Space) {
+    y += 0.1;
+  }
+
 
   return { x, y, z };
 }
@@ -56,10 +61,15 @@ function getRotation() {
 }
 
 function onKeyChange(event, isPressed) {
+  if (event.code === 'Space') {
+    keys["Space"] = isPressed;
+    return;
+  }
   const key = event.key.toUpperCase();
   if (keys.hasOwnProperty(key)) {
     keys[key] = isPressed;
   }
+
 }
 
 function onKeyDown(event) {
@@ -75,15 +85,8 @@ function onMouseScroll(camera) {
   camera.position.set(x, camera.position.y++, z); // Adjust the y-coordinate to set the camera above the map
 }
 
-// Function to handle space key press
-function onSpacePress(event, player) {
-  if (event.code === 'Space') {
-    console.log('Space key pressed!');
-    player.mesh.position.y++;
-  }
-}
 
 const keyEvents = { onKeyDown, onKeyUp };
-const mouseEvents = { onMouseDown, onMouseUp, onMouseMove, onMouseScroll, onSpacePress };
+const mouseEvents = { onMouseDown, onMouseUp, onMouseMove, onMouseScroll };
 
-export { keyEvents, mouseEvents, calculateNewPos, getRotation , cameraRotation };
+export { keyEvents, mouseEvents, calculateNewPos, getRotation, cameraRotation };

@@ -1,6 +1,7 @@
 import * as THREE from "../../three/build/three.module.js";
 // Create a star shape
 const starShape = new THREE.Shape();
+
 starShape.moveTo(0, 10);
 for (let i = 0; i < 5; i++) {
  starShape.lineTo(Math.cos((Math.PI / 5) * 2 * i) * 5, Math.sin((Math.PI / 5) * 2 * i) * 5);

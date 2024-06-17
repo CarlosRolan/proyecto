@@ -1,5 +1,5 @@
 import * as THREE from "../../three/build/three.module.js";
-import { enemies, p } from "./player.js";
+import { Player, enemies, p } from "./player.js";
 import { playerCamera } from "./camera.js";
 import { maze } from "./maze.js";
 import { ground } from "./ground.js";
@@ -15,17 +15,18 @@ import { sendPosition, win } from "./client.js";
 import { listener, mazeCollisionSound, walkSound, winningSound } from "./audioLoader.js";
 
 
-const cellSize = maze.cellSize;
+const { boundries } = ground;
+const { minX, maxX, minZ, maxZ } = boundries;
+
+const { mazeData, cellSize } = maze;
 const halfCellSize = cellSize / 2;
-
-const playerBoundingBox = new THREE.Box3();
-
-const mazeData = maze.mazeData;
-const mazeBoundingBoxes = maze.mazeBoundingBoxes;
 
 const scene = new THREE.Scene();
 
-const [starX, starY] = findValidPosition();
+let spectacting = false;
+
+const [starX, starY] = findValidPosition(mazeData);
+// Position the start at the middle
 star.position.set(starX * cellSize - mazeData[0].length / 2 * cellSize + halfCellSize, 1, starY * cellSize - mazeData.length / 2 * cellSize + halfCellSize);
 // Position the player at the entrance
 p.mesh.position.set(1 * cellSize - mazeData[0].length / 2 * cellSize + halfCellSize, 1, 0 * cellSize - mazeData.length / 2 * cellSize + halfCellSize);
@@ -34,12 +35,23 @@ playerCamera.add(listener);
 
 scene.add(maze, p.mesh, ground, star);
 
+function spectate() {
+  scene.remove(p);
+  playerCamera.lookAt(star);
+  playerCamera.position.set(50, 100, 50);
+  spectacting = true;
+}
+
 
 // Main render method
 function animate() {
   requestAnimationFrame(animate);
-  updatePlayer();
-  updateCamera();
+  if (!spectacting) {
+    updatePlayer();
+    updateCamera();
+  } else {
+    playerCamera.lookAt(star);
+  }
   rotateStar();
   renderer.render(scene, playerCamera);
 }
@@ -56,12 +68,17 @@ function updateCamera() {
 
 function updatePlayer() {
   const currentPosition = p.mesh.position.clone();
-  const newPos = calculateNewPos(p.mesh.position, p.speed);
+
+  let newPos = calculateNewPos(p.mesh.position, p.speed);
   const newRotation = getRotation();
+
+  // Boundary check to ensure the player stays within the ground limits
+  newPos = checkPlayerBoundary(newPos);
 
   if (!currentPosition.equals(newPos)) {
 
     p.rotate(newRotation);
+
     p.move(newPos.x, newPos.y, newPos.z);
 
     handleMazeCollisions(p);
@@ -92,9 +109,20 @@ function updateEnemies(enemies) {
   enemies.forEach(enemy => scene.add(enemy.mesh));
 }
 
-function addEnemy(enemy) {
-  enemies.add(enemy);
-  scene.add(enemy.mesh); // Add the enemy to the scene
+function addEnemy(enemyId) {
+  enemies.forEach(e => {
+    if (e.id == p.id) {
+      console.log("THAT IS YOU");
+      return;
+    }
+    if (e.id === enemyId) {
+      console.log("Enemy already exists");
+      return;
+    }
+  });
+  const newEnemy = new Player(enemyId);
+  enemies.add(newEnemy);
+  scene.add(newEnemy.mesh); // Add the enemy to the scene
 }
 
 function deleteEnemy(enemyId) {
@@ -107,15 +135,20 @@ function deleteEnemy(enemyId) {
 }
 
 //======================[COLLISIONS]=======================/
-function isPlayerOnGround(player, scene) {
-  const raycaster = new THREE.Raycaster(
-    player.mesh.position.clone(),
-    new THREE.Vector3(0, -1, 0),
-    0,
-    player.geometry.boundingSphere.radius
-  );
-  const intersects = raycaster.intersectObjects(scene.children, true);
-  return intersects.length > 0;
+function checkPlayerBoundary(position) {
+  if (position.x < minX) {
+    position.x = minX;
+  } else if (position.x > maxX) {
+    position.x = maxX;
+  }
+
+  if (position.z < minZ) {
+    position.z = minZ;
+  } else if (position.z > maxZ) {
+    position.z = maxZ;
+  }
+
+  return position;
 }
 
 function handleMazeCollisions(player) {
@@ -164,9 +197,8 @@ function handleMazeCollisions(player) {
   }
 }
 
-
-
 function handleSimplePlayerCollisions(player) {
+  const playerBoundingBox = new THREE.Box3();
   playerBoundingBox.setFromObject(player.mesh);
   enemies.forEach(enemy => {
     const enemyBoundingBox = new THREE.Box3().setFromObject(enemy.mesh);
@@ -230,14 +262,6 @@ function findValidPosition() {
   return [centerX, centerY]; // Fallback
 }
 
-window.addEventListener("scroll", function (e) {
-  console.log("Scrolll");
-  playerCamera.position.y++; // Adjust the y-coordinate to set the camera above the map
-}, false);
-// Add event listener for keydown event
-window.addEventListener('keydown', (e) => {
-  mouseEvents.onSpacePress(e, p);
-}, false);
 window.addEventListener("mousedown", mouseEvents.onMouseDown, true);
 window.addEventListener("mouseup", mouseEvents.onMouseUp, false);
 window.addEventListener("mousemove", mouseEvents.onMouseMove, true);
@@ -246,79 +270,4 @@ window.addEventListener("keyup", keyEvents.onKeyUp, false);
 
 document.getElementById("canvas").appendChild(renderer.domElement);
 
-export { animate, updateEnemies, deleteEnemy, addEnemy };
-
-/*
-function handlePlayerCollisions(player, newPos) {
-  playerBoundingBox.setFromObject(player.mesh);
-  enemies.forEach(enemy => {
-    const enemyBoundingBox = new THREE.Box3().setFromObject(enemy.mesh);
-    if (playerBoundingBox.intersectsBox(enemyBoundingBox)) {
-      const overlap = {
-        x: Math.min(playerBoundingBox.max.x - enemyBoundingBox.min.x, enemyBoundingBox.max.x - playerBoundingBox.min.x),
-        y: Math.min(playerBoundingBox.max.y - enemyBoundingBox.min.y, enemyBoundingBox.max.y - playerBoundingBox.min.y),
-        z: Math.min(playerBoundingBox.max.z - enemyBoundingBox.min.z, enemyBoundingBox.max.z - playerBoundingBox.min.z),
-      };
-
-      const playerVelocity = new THREE.Vector3(
-        newPos.x - player.mesh.position.x,
-        newPos.y - player.mesh.position.y,
-        newPos.z - player.mesh.position.z
-      ).multiplyScalar(0.5); // Halve the player's speed
-
-      const enemyVelocity = new THREE.Vector3(
-        enemy.mesh.position.x - newPos.x,
-        enemy.mesh.position.y - newPos.y,
-        enemy.mesh.position.z - newPos.z
-      ).multiplyScalar(0.5); // Halve the enemy's speed
-
-      if (overlap.x < overlap.y && overlap.x < overlap.z) {
-        if (player.mesh.position.x < enemy.mesh.position.x) {
-          player.mesh.position.x -= overlap.x;
-          enemy.mesh.position.x += overlap.x;
-        } else {
-          player.mesh.position.x += overlap.x;
-          enemy.mesh.position.x -= overlap.x;
-        }
-        playerVelocity.x = -playerVelocity.x;
-        enemyVelocity.x = -enemyVelocity.x;
-      } else if (overlap.y < overlap.x && overlap.y < overlap.z) {
-        if (player.mesh.position.y < enemy.mesh.position.y) {
-          player.mesh.position.y -= overlap.y;
-          enemy.mesh.position.y += overlap.y;
-        } else {
-          player.mesh.position.y += overlap.y;
-          enemy.mesh.position.y -= overlap.y;
-        }
-        playerVelocity.y = -playerVelocity.y;
-        enemyVelocity.y = -enemyVelocity.y;
-      } else {
-        if (player.mesh.position.z < enemy.mesh.position.z) {
-          player.mesh.position.z -= overlap.z;
-          enemy.mesh.position.z += overlap.z;
-        } else {
-          player.mesh.position.z += overlap.z;
-          enemy.mesh.position.z -= overlap.z;
-        }
-        playerVelocity.z = -playerVelocity.z;
-        enemyVelocity.z = -enemyVelocity.z;
-      }
-
-      // Ensure velocities are not summed in the same direction and cancel out in opposite directions
-      if (playerVelocity.dot(enemyVelocity) > 0) {
-        playerVelocity.multiplyScalar(0.5);
-        enemyVelocity.multiplyScalar(0.5);
-      } else {
-        playerVelocity.set(0, 0, 0);
-        enemyVelocity.set(0, 0, 0);
-      }
-
-      player.mesh.position.add(playerVelocity);
-      enemy.mesh.position.add(enemyVelocity);
-
-      playerBoundingBox.setFromObject(player.mesh);
-      enemyBoundingBox.setFromObject(enemy.mesh);
-    }
-  });
-}
-*/
+export { animate, updateEnemies, deleteEnemy, addEnemy, spectate };

@@ -1,5 +1,5 @@
-import { Player, p, enemies } from "./player.js";
-import { updateEnemies, deleteEnemy } from "./scene.js";
+import { p, enemies } from "./player.js";
+import { updateEnemies, deleteEnemy, addEnemy, spectate } from "./scene.js";
 import Msg, {
   ACTION_EXIT,
   ACTION_NEW_PLAYER,
@@ -9,11 +9,11 @@ import Msg, {
   ACTION_ASK_MAZE_DATA,
   ACTION_SEND_MAZE_DATA,
   ACTION_WIN,
-  ACTION_LOST
+  ACTION_LOST,
+  ACTION_MAP_INFO,
+  ACTION_MAX_PLAYERS
 } from "../msg.mjs";
 import { loossingSound } from "./audioLoader.js";
-
-
 
 const ws = new WebSocket("ws://localhost:5500");
 
@@ -44,6 +44,7 @@ function sendPosition(position) {
   const msg = new Msg(ACTION_NEW_POS, position);
   sendMessage(msg);
 }
+
 function handleEndGame(text) {
   // Show the "YOU WIN" message
   const endMsg = document.getElementById("endMsg");
@@ -80,13 +81,17 @@ function sendMessage(msg) {
 }
 
 function handleServerResponse(serverMsg) {
-  console.log("Message from server:", serverMsg);
+
+  console.log(serverMsg);
+
   const { ACTION, CONTENT } = serverMsg;
 
   switch (ACTION) {
+
     case ACTION_SEND_MAZE_DATA:
       console.log("Getting the map data");
       break;
+
     case ACTION_MSG:
       console.log(CONTENT);
       break;
@@ -103,9 +108,28 @@ function handleServerResponse(serverMsg) {
       break;
 
     case ACTION_LOST:
+      console.log("You LOST");
       const playerWhoWin = CONTENT;
       console.log(playerWhoWin);
       lost();
+      break;
+
+    //Notifies to the players in the map the new player
+    case ACTION_NEW_PLAYER:
+      console.log("New Player connected");
+      addEnemy(CONTENT);
+      break;
+
+    //Gets the player already in map
+    case ACTION_MAP_INFO:
+      const allPlayersId = CONTENT;
+      allPlayersId.forEach(id => {
+        addEnemy(id);
+      })
+      break;
+
+    case ACTION_MAX_PLAYERS:
+      spectate();
       break;
 
     default:
@@ -115,8 +139,6 @@ function handleServerResponse(serverMsg) {
 }
 
 function updateEnemyPosition(id, position, rotation) {
-  let existingEnemy = false;
-
   enemies.forEach(e => {
     if (e.id == id) {
       e.move(position.x, position.y, position.z);
@@ -125,21 +147,7 @@ function updateEnemyPosition(id, position, rotation) {
     }
   });
 
-  if (existingEnemy) {
-
-  } else {
-    const newEnemy = new Player(id);
-    newEnemy.move(position.x, position.y, position.z);
-    newEnemy.rotate(rotation);
-    enemies.add(newEnemy);
-  }
-
   updateEnemies(enemies);
-}
-
-function askForMazeData() {
-  const msg = new Msg(ACTION_ASK_MAZE_DATA);
-  sendMessage(msg);
 }
 
 

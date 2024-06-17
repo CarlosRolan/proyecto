@@ -13,7 +13,9 @@
   "author": "Carlos Rolan Diaz",
   "license": "ISC",
   "dependencies": {
+    "@types/node": "^20.14.2",
+    "fs": "^0.0.1-security",
+    "three": "^0.165.0",
     "ws": "^8.17.0"
   }
-  
 }

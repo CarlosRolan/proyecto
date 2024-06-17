@@ -1,43 +1,24 @@
 import * as THREE from "../../three/build/three.module.js";
+import { mazeXY } from "../staticMazeData.js";
 
 // Cell size of the maze
 const cellSize = 2;
 const halfCellSize = cellSize / 2;
-const mazeData = generateMazeData(51, 51);
 const mazeBoundingBoxes = [];
 
-const mazeDataStatic = [
-  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1],
-  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1],
-  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1],
-  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1],
-  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1],
-  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1],
-  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1],
-  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1],
-  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1],
-  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1],
-  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1],
-  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1],
-  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1],
-  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1],
-  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1],
-  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1],
-  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1],
-];
-
-
-
-
-function generateMazeData(width, height) {
-  if (width % 2 === 0 || height % 2 === 0) {
+function createArray(w, h) {
+  if (w % 2 === 0 || h % 2 === 0) {
     throw new Error("Width and height must be odd numbers");
   }
 
   // Initialize the maze with walls (1s)
-  let mazeData = Array.from({ length: height }, () => Array(width).fill(1));
+  let mazeData = Array.from({ length: h }, () => Array(w).fill(1));
+  return mazeData;
+}
+
+function generateMazeData(mazeData) {
+  const width = mazeData.length;
+  const height = mazeData[0].length;
 
   // Define directions for moving: [right, down, left, up]
   const directions = [
@@ -65,7 +46,7 @@ function generateMazeData(width, height) {
     for (let [dx, dy] of directions) {
       let nx = x + 2 * dx;
       let ny = y + 2 * dy;
-      if (isInBounds(nx, ny) && mazeData[nx][ny] === 1) {
+      if (isInBounds(nx, ny) && mazeData[nx][ny] == 1) {
         mazeData[x + dx][y + dy] = 0;
         carvePath(nx, ny);
       }
@@ -90,6 +71,7 @@ function generateMazeData(width, height) {
 
   return mazeData;
 }
+
 function initMaze(mazeData) {
   const mazeGroup = new THREE.Group();
   const mazeCellGeometry = new THREE.BoxGeometry(cellSize, cellSize, cellSize);
@@ -135,12 +117,15 @@ function initMaze(mazeData) {
   return mazeGroup;
 }
 
-const maze = initMaze(mazeData);
+//const mazeDataArray = createArray(51, 51);
+//const mazeData = generateMazeData(mazeXY);
+
+const maze = initMaze(mazeXY);
 
 console.log(maze);
 
 maze.mazeBoundingBoxes = mazeBoundingBoxes;
 maze.cellSize = cellSize;
-maze.mazeData = mazeData;
+maze.mazeData = mazeXY;
 
 export { maze };

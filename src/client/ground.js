@@ -1,7 +1,10 @@
 import * as THREE from "../../three/build/three.module.js";
 
+const maxGroundWidth = 102;
+const maxGroundHeight = 102;
+
 // Initialize the ground directly
-const groundGeometry = new THREE.PlaneGeometry(102, 102, 10, 10);
+const groundGeometry = new THREE.PlaneGeometry(maxGroundWidth, maxGroundHeight, 10, 10);
 
 // Load the texture
 const textureLoader = new THREE.TextureLoader();
@@ -20,13 +23,13 @@ const groundMaterial = new THREE.MeshBasicMaterial({ map: texture });
 const ground = new THREE.Mesh(groundGeometry, groundMaterial);
 ground.rotation.x = Math.PI / -2;
 
-// Calculate random position within the boundaries of the ground
-const minX = -groundGeometry.parameters.width / 2;
-const maxX = groundGeometry.parameters.width / 2;
-const minZ = -groundGeometry.parameters.height / 2;
-const maxZ = groundGeometry.parameters.height / 2;
 
-const randomX = Math.random() * (maxX - minX) + minX;
-const randomZ = Math.random() * (maxZ - minZ) + minZ;
+//IMPORTAN the 0.5 represent the player width;
+const minX = (-maxGroundWidth / 2) + 0.5;
+const maxX = (maxGroundWidth / 2) - 0.5;
+const minZ = (-maxGroundHeight / 2) + 0.5;
+const maxZ = (maxGroundHeight / 2) - 0.5;
+
+ground.boundries = { minX, maxX, minZ, maxZ };
 
 export { ground };
