@@ -3,6 +3,7 @@ const keys = {
   A: false,
   S: false,
   D: false,
+  F: false,
   Space: false
 };
 
@@ -31,6 +32,10 @@ function calculateNewPos({ x, y, z }, speed) {
   }
   if (keys.Space) {
     y += 0.1;
+  }
+
+  if (keys.F) {
+    y -= 0.1;
   }
 
 
