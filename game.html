@@ -2,12 +2,12 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <link rel="stylesheet" href="style/style.css">
-    <title>Pilla Pilla</title>
-    <script type="importmap">
+  <link rel="stylesheet" href="style/styleGame.css">
+  <title>Pilla Pilla</title>
+  <script type="importmap">
         {
           "imports": {
             "three": "https://cdn.jsdelivr.net/npm/three@0.164.1/build/three.module.js",
@@ -19,18 +19,23 @@
 
 <body>
 
-    <div id="canvas" class="canvas">
+  <div id="canvas" class="canvas"></div>
 
-    </div>
+  <div id="endMsg"></div>
 
-    <div id="endMsg"></div>
+  <!-- This div will serve as the black overlay -->
+  <div id="blackOverlay"></div>
 
-    <!-- This div will serve as the black overlay -->
-    <div id="blackOverlay"></div>
+  <div id="infoPanel">
+    <p id="infoX">X[]</p>
+    <p id="infoY">Y[]</p>
+    <p id="infoZ">Z[]</p>
+    <p id="infoRotation">Rotation[]</p>
+  </div>
 
 
-    <!-- <script src="dist/bundle.js"></script> -->
-    <script type="module" src="./src/client/index.js"></script>
+  <!-- <script src="dist/bundle.js"></script> -->
+  <script type="module" src="./src/client/index.js"></script>
 
 </body>
 

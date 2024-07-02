@@ -7,13 +7,16 @@ import { star, rotateStar } from "./start.js";
 import {
   mouseEvents,
   keyEvents,
-  calculateNewPos, getRotation,
+  calculateNewPos,
+  playerRotation,
   cameraRotation,
+  onKey
 } from "./controls.js";
 import { renderer } from "./renderer.js";
 import { sendPosition, win } from "./client.js";
 import { listener, mazeCollisionSound, walkSound, winningSound } from "./audioLoader.js";
-
+import { ambient, dirlight } from "./lights.js";
+import { updateInfoPanel } from "./ui.js";
 
 const { boundries } = ground;
 const { minX, maxX, minZ, maxZ } = boundries;
@@ -22,6 +25,8 @@ const { mazeData, cellSize } = maze;
 const halfCellSize = cellSize / 2;
 
 const scene = new THREE.Scene();
+const clock = new THREE.Clock();
+
 
 let spectacting = false;
 
@@ -31,57 +36,49 @@ star.position.set(starX * cellSize - mazeData[0].length / 2 * cellSize + halfCel
 // Position the player at the entrance
 p.mesh.position.set(1 * cellSize - mazeData[0].length / 2 * cellSize + halfCellSize, 1, 0 * cellSize - mazeData.length / 2 * cellSize + halfCellSize);
 
-playerCamera.add(listener);
+//playerCamera.add(listener);
 
-scene.add(maze, p.mesh, ground, star);
-
-function spectate() {
-  scene.remove(p);
-  playerCamera.lookAt(star);
-  playerCamera.position.set(50, 100, 50);
-  spectacting = true;
-}
-
+scene.add(maze, p.mesh, ground, star, dirlight, ambient);
 
 // Main render method
 function animate() {
   requestAnimationFrame(animate);
-  if (!spectacting) {
-    updatePlayer();
-    updateCamera();
-  } else {
-    playerCamera.lookAt(star);
-  }
-  rotateStar();
+  updateScene();
+  onKey("X", spectate);
+
+  updatePlayer();
+
   renderer.render(scene, playerCamera);
 }
 
-// ======== UPDATE METHODS =====/
-function updateCamera() {
-  playerCamera.position.set(
-    p.mesh.position.x - 5 * Math.sin(cameraRotation),
-    playerCamera.position.y,
-    p.mesh.position.z - 5 * Math.cos(cameraRotation)
-  );
-  playerCamera.lookAt(p.mesh.position);
+function spectate() {
+  spectacting = true;
+  playerCamera.position.set(0, 100, 0);
+  //playerCamera.lookAt(star);
 }
 
+// ======== UPDATE METHODS =====/
+function updateScene() {
+  rotateStar();
+}
 function updatePlayer() {
   const currentPosition = p.mesh.position.clone();
 
   let newPos = calculateNewPos(p.mesh.position, p.speed);
-  const newRotation = getRotation();
 
   // Boundary check to ensure the player stays within the ground limits
   newPos = checkPlayerBoundary(newPos);
 
   if (!currentPosition.equals(newPos)) {
 
-    p.rotate(newRotation);
+    p.rotate(playerRotation);
 
     p.move(newPos.x, newPos.y, newPos.z);
 
-    handleMazeCollisions(p);
+    // Get the delta time
+    const deltaTime = clock.getDelta();
+
+    handleMazeCollisions(deltaTime);
     handleSimplePlayerCollisions(p);
     handlePlayerStarCollision(p);
 
@@ -90,25 +87,36 @@ function updatePlayer() {
       walkSound.play();
     }
 
-    sendPosition({ id: p.id, position: p.mesh.position, rotation: p.mesh.rotation.y });
+    //UI
+    updateInfoPanel(newPos, playerRotation);
 
+    sendPosition({ id: p.id, position: p.mesh.position, rotation: p.mesh.rotation.y });
   } else {
 
     // Play walking sound
     if (walkSound.isPlaying) {
       walkSound.stop();
     }
+
   }
 
-  /*if (p.mesh.position.y > 0.5 && !p.climbing) {
-    p.mesh.position.y -= 0.1;
-  }*/
+  updatePlayerCamera();
 }
-
+function updatePlayerCamera() {
+  if (!spectacting) {
+    playerCamera.position.set(
+      p.mesh.position.x - 5 * Math.sin(cameraRotation),
+      playerCamera.position.y,
+      p.mesh.position.z - 5 * Math.cos(cameraRotation)
+    );
+    playerCamera.lookAt(p.mesh.position);
+  } else {
+    playerCamera.lookAt(star.position);
+  }
+}
 function updateEnemies(enemies) {
   enemies.forEach(enemy => scene.add(enemy.mesh));
 }
-
 function addEnemy(enemyId) {
   enemies.forEach(e => {
     if (e.id == p.id) {
@@ -124,7 +132,6 @@ function addEnemy(enemyId) {
   enemies.add(newEnemy);
   scene.add(newEnemy.mesh); // Add the enemy to the scene
 }
-
 function deleteEnemy(enemyId) {
   enemies.forEach(e => {
     if (e.id === enemyId) {
@@ -151,21 +158,44 @@ function checkPlayerBoundary(position) {
   return position;
 }
 
-function handleMazeCollisions(player) {
+function lerp(start, end, t) {
+  return start + (end - start) * t;
+}
+
+function applyCorrectionSmoothly2(position, correctionVector, deltaTime) {
+  const smoothingFactor = 0.1; // Adjust this value to control the smoothing effect
+  position.x = lerp(position.x, position.x + correctionVector.x, smoothingFactor * deltaTime);
+  position.y = lerp(position.y, position.y + correctionVector.y, smoothingFactor * deltaTime);
+  position.z = lerp(position.z, position.z + correctionVector.z, smoothingFactor * deltaTime);
+}
+
+
+function applyCorrectionSmoothly(position, correctionVector, deltaTime) {
+  const smoothingFactor = 100; // Adjust this value to control the smoothing effect
+  const smoothedCorrection = new THREE.Vector3().copy(correctionVector).multiplyScalar(smoothingFactor * deltaTime);
+  position.add(smoothedCorrection);
+}
+
+
+function handleMazeCollisions(deltaTime) {
   let bushCollisionDetected = false;
-  const playerBoundingBox = new THREE.Box3().setFromObject(player.mesh);
+
+  const playerBoundingBox = new THREE.Box3().setFromObject(p.getCollider());
   let correctionVector = new THREE.Vector3();
 
   for (const mazeBoundingBox of maze.mazeBoundingBoxes) {
     if (playerBoundingBox.intersectsBox(mazeBoundingBox)) {
+
       switch (mazeBoundingBox.type) {
+
         case "bush":
           bushCollisionDetected = true;
           if (!mazeCollisionSound.isPlaying) {
             mazeCollisionSound.play();
           }
-          player.speed = 0.02;
+          p.speed = 0.02;
           break;
+
         case "wall":
           const overlap = {
             x: Math.min(playerBoundingBox.max.x - mazeBoundingBox.min.x, mazeBoundingBox.max.x - playerBoundingBox.min.x),
@@ -181,16 +211,22 @@ function handleMazeCollisions(player) {
             correctionVector.z += playerBoundingBox.min.z < mazeBoundingBox.min.z ? -overlap.z : overlap.z;
           }
           break;
+
         default:
           break;
       }
     }
+
   }
 
-  player.mesh.position.add(correctionVector);
+  // Apply the correction vector to the player's position
+  //p.mesh.position.add(correctionVector.clone().multiplyScalar(deltaTime));
+  //applyCorrectionSmoothly(p.mesh.position, correctionVector, deltaTime);
+  applyCorrectionSmoothly(p.mesh.position, correctionVector, deltaTime);
+  //p.mesh.position.add(correctionVector);
 
   if (!bushCollisionDetected) {
-    player.speed = 0.1;
+    p.speed = 0.1;
     if (mazeCollisionSound.isPlaying) {
       mazeCollisionSound.stop();
     }
@@ -198,8 +234,7 @@ function handleMazeCollisions(player) {
 }
 
 function handleSimplePlayerCollisions(player) {
-  const playerBoundingBox = new THREE.Box3();
-  playerBoundingBox.setFromObject(player.mesh);
+  const playerBoundingBox = new THREE.Box3().setFromObject(player.mesh.getObjectByName("collider"));
   enemies.forEach(enemy => {
     const enemyBoundingBox = new THREE.Box3().setFromObject(enemy.mesh);
     if (playerBoundingBox.intersectsBox(enemyBoundingBox)) {

@@ -17,7 +17,7 @@ import { loossingSound } from "./audioLoader.js";
 
 const ws = new WebSocket("ws://localhost:5500");
 
-// Handle WebSocket events
+// Handle WebSocket events =======================
 ws.onopen = function () {
   console.log("Connection established");
   registerPlayer();
@@ -34,51 +34,7 @@ ws.onerror = function (error) {
 ws.onclose = function () {
   console.log("Connection closed");
 };
-
-function registerPlayer() {
-  const msg = new Msg(ACTION_REGISTER, p.id);
-  sendMessage(msg);
-}
-
-function sendPosition(position) {
-  const msg = new Msg(ACTION_NEW_POS, position);
-  sendMessage(msg);
-}
-
-function handleEndGame(text) {
-  // Show the "YOU WIN" message
-  const endMsg = document.getElementById("endMsg");
-  endMsg.innerHTML = text;
-  endMsg.style.display = "block";
-
-  // Fade the screen to black
-  const blackOverlay = document.getElementById("blackOverlay");
-  blackOverlay.style.opacity = "1";
-
-  // Optionally, add a delay before transitioning to the next screen or resetting the game
-  setTimeout(() => {
-    window.location = "index.html";
-  }, 3000); // Adjust the delay time as needed
-}
-
-function win(player) {
-  const { id } = player;
-  console.log(id);
-  handleEndGame("WIN");
-  const winMsg = new Msg(ACTION_WIN, player.id);
-  sendMessage(winMsg);
-}
-
-function lost() {
-  handleEndGame("LOST");
-  loossingSound.play();
-}
-
-function sendMessage(msg) {
-  if (ws.readyState === ws.OPEN) {
-    ws.send(msg.pack());
-  }
-}
+//================================================
 
 function handleServerResponse(serverMsg) {
 
@@ -124,7 +80,9 @@ function handleServerResponse(serverMsg) {
     case ACTION_MAP_INFO:
       const allPlayersId = CONTENT;
       allPlayersId.forEach(id => {
-        addEnemy(id);
+        if (p.id != id) {
+          addEnemy(id);
+        }
       })
       break;
 
@@ -135,6 +93,52 @@ function handleServerResponse(serverMsg) {
     default:
       console.log("No action specified");
       break;
+  }
+}
+
+//On Open connection
+function registerPlayer() {
+  const msg = new Msg(ACTION_REGISTER, p.id);
+  sendMessage(msg);
+}
+
+function sendPosition(position) {
+  const msg = new Msg(ACTION_NEW_POS, position);
+  sendMessage(msg);
+}
+
+function endGame(text) {
+  // Show the "YOU WIN" message
+  const endMsg = document.getElementById("endMsg");
+  endMsg.innerHTML = text;
+  endMsg.style.display = "block";
+
+  // Fade the screen to black
+  const blackOverlay = document.getElementById("blackOverlay");
+  blackOverlay.style.opacity = "1";
+
+  // Optionally, add a delay before transitioning to the next screen or resetting the game
+  setTimeout(() => {
+    window.location = "index.html";
+  }, 3000); // Adjust the delay time as needed
+}
+
+function win(player) {
+  const { id } = player;
+  console.log(id);
+  endGame("WIN");
+  const winMsg = new Msg(ACTION_WIN, player.id);
+  sendMessage(winMsg);
+}
+
+function lost() {
+  endGame("LOST");
+  loossingSound.play();
+}
+
+function sendMessage(msg) {
+  if (ws.readyState === ws.OPEN) {
+    ws.send(msg.pack());
   }
 }
 

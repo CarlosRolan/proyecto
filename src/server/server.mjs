@@ -26,12 +26,12 @@ function listenConnections() {
 
     ws.on("close", function close() {
       console.log("onClose");
-      handleClientExit(ws);
+      onClientExit(ws);
     });
   });
 }
 
-
+//OnNewMsg from Client
 function handleClientMsg(message, ws) {
   const { ACTION, CONTENT } = message;
 
@@ -40,15 +40,15 @@ function handleClientMsg(message, ws) {
   switch (ACTION) {
 
     case ACTION_WIN:
-      handlePlayerVictory(CONTENT, ws);
+      onPlayerVictory(CONTENT, ws);
       break;
 
     case ACTION_REGISTER:
-      handleNewPlayer(CONTENT, ws);
+      onNewPlayer(CONTENT, ws);
       break;
 
     case ACTION_NEW_POS:
-      handleNewPosition(CONTENT);
+      onNewPosition(CONTENT);
       break;
 
     default:
@@ -57,12 +57,14 @@ function handleClientMsg(message, ws) {
   }
 }
 
-function handlePlayerVictory(playerId, ws) {
+//On ACTION_WIN
+function onPlayerVictory(playerId, ws) {
   const msgLost = new Msg(ACTION_LOST, playerId);
   broadcastExcept(ws, msgLost);
 }
 
-function handleNewPlayer(playerId, ws) {
+//On ACTION_REGISTER
+function onNewPlayer(playerId, ws) {
   ws.id = playerId;
   if (playerIds.size < 3) {
     playerIds.add(playerId);
@@ -71,11 +73,13 @@ function handleNewPlayer(playerId, ws) {
     //Sending msg to the player
     sendMsgToClient(ws, new Msg(ACTION_MAP_INFO, Array.from(playerIds)));
   } else {
+    console.log("MAX Players reached");
     sendMsgToClient(ws, new Msg(ACTION_MAX_PLAYERS));
   }
 }
 
-function handleNewPosition(content) {
+//On ACTION_NEW_POS
+function onNewPosition(content) {
   const { id } = content;
   const msg = new Msg(ACTION_NEW_POS, content)
   if (playerIds.has(id)) {
@@ -87,7 +91,8 @@ function handleNewPosition(content) {
   }
 }
 
-function handleClientExit(ws) {
+//On CLOSE conection
+function onClientExit(ws) {
 
   if (ws.id) {
     console.log("PLAYER[" + ws.id + "] has left");
@@ -97,6 +102,7 @@ function handleClientExit(ws) {
   }
 }
 
+//UTILS--
 function sendMsgToClient(ws, msg) {
   try {
     ws.send(msg.pack());
@@ -105,8 +111,7 @@ function sendMsgToClient(ws, msg) {
   }
 }
 
-function broadcast(content) {
-  const msg = new Msg(ACTION_NEW_POS, content)
+function broadcast(content, msg) {
   wss.clients.forEach(function each(client) {
     client.send(msg.pack());
   });

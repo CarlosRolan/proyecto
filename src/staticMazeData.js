@@ -1,4 +1,4 @@
-export const mazeXY = [
+export const staticMazeData = [
  [
   2,
   0,

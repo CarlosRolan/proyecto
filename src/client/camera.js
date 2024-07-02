@@ -13,7 +13,6 @@ let r1 = Math.floor(Math.random() * 1) + 1;
 let r2 = Math.floor(Math.random() * 100) + 1;
 let r3 = r1;
 
-
 // Create the camera
 const playerCamera = new THREE.PerspectiveCamera(FOV, ASPECT_RATIO, NEAR_PLANE, FAR_PLANE);
 playerCamera.position.copy(CAMERA_POSITION);
@@ -45,6 +44,5 @@ function moveCameraAroundMenu() {
 
  time += speed;
 }
-
 
 export { playerCamera, menuCamera, moveCameraAroundMenu };

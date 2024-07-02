@@ -4,6 +4,7 @@ const keys = {
   S: false,
   D: false,
   F: false,
+  X: false,
   Space: false
 };
 
@@ -33,15 +34,25 @@ function calculateNewPos({ x, y, z }, speed) {
   if (keys.Space) {
     y += 0.1;
   }
-
+  if (keys.F) {
+    y -= 0.1;
+  }
   if (keys.F) {
     y -= 0.1;
   }
 
-
   return { x, y, z };
 }
 
+function onKey(key, callback) {
+  if (keys[key] === true) {
+    callback();
+    return true;
+  }
+  return false;
+}
+
+// MOUSE EVENTS
 function onMouseDown(event) {
   mouseDown = true;
   lastMouseX = event.clientX;
@@ -61,15 +72,14 @@ function onMouseMove(event) {
   lastMouseX = event.clientX;
 }
 
-function getRotation() {
-  return playerRotation;
-}
 
+// KEYBOARD EVENTS
 function onKeyChange(event, isPressed) {
   if (event.code === 'Space') {
     keys["Space"] = isPressed;
     return;
   }
+
   const key = event.key.toUpperCase();
   if (keys.hasOwnProperty(key)) {
     keys[key] = isPressed;
@@ -94,4 +104,4 @@ function onMouseScroll(camera) {
 const keyEvents = { onKeyDown, onKeyUp };
 const mouseEvents = { onMouseDown, onMouseUp, onMouseMove, onMouseScroll };
 
-export { keyEvents, mouseEvents, calculateNewPos, getRotation, cameraRotation };
+export { keyEvents, mouseEvents, calculateNewPos, playerRotation, cameraRotation, onKey };

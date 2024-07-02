@@ -1,5 +1,5 @@
 import * as THREE from "../../three/build/three.module.js";
-import { mazeXY } from "../staticMazeData.js";
+import { staticMazeData } from "../staticMazeData.js";
 
 // Cell size of the maze
 const cellSize = 2;
@@ -93,7 +93,7 @@ function initMaze(mazeData) {
 
   for (let i = 0; i < mazeData.length; i++) {
     for (let j = 0; j < mazeData[i].length; j++) {
-      if (mazeData[i][j] === 1) {
+      if (mazeData[i][j] === 2) {
         const bush = new THREE.Mesh(mazeCellGeometry, bushMaterial);
         bush.position.set(j * cellSize - offsetX + halfCellSize, 1, i * cellSize - offsetZ + halfCellSize);
         mazeGroup.add(bush);
@@ -102,7 +102,7 @@ function initMaze(mazeData) {
         boundingBox.type = 'bush';
         mazeBoundingBoxes.push(boundingBox);
 
-      } else if (mazeData[i][j] === 2) {
+      } else if (mazeData[i][j] === 1) {
         const wall = new THREE.Mesh(mazeCellGeometry, wallMaterial);
         wall.position.set(j * cellSize - offsetX + halfCellSize, 1, i * cellSize - offsetZ + halfCellSize);
         mazeGroup.add(wall);
@@ -120,12 +120,12 @@ function initMaze(mazeData) {
 //const mazeDataArray = createArray(51, 51);
 //const mazeData = generateMazeData(mazeXY);
 
-const maze = initMaze(mazeXY);
+const maze = initMaze(staticMazeData);
 
 console.log(maze);
 
 maze.mazeBoundingBoxes = mazeBoundingBoxes;
 maze.cellSize = cellSize;
-maze.mazeData = mazeXY;
+maze.mazeData = staticMazeData;
 
 export { maze };
